@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
 
+export const fetchCache = 'force-no-store'
+
 import { neon } from '@neondatabase/serverless'
 import { type NextRequest, NextResponse } from 'next/server'
 
