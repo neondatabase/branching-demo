@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/components/ui/use-toast'
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -12,12 +13,9 @@ function Page() {
   const searchParams = useSearchParams()
   const [rows, setRows] = useState([])
   const [columns, setColumns] = useState([])
+  const [queryInput, setQueryInput] = useState('')
   const branchName = searchParams.get('branchName') || 'main'
-  useEffect(() => {
-    toast({
-      duration: 1000,
-      description: `Loading data from ${branchName} branch...`,
-    })
+  const fetchData = () => {
     fetch(`/project/data?branchName=${branchName}`)
       .then((res) => res.json())
       .then((res) => {
@@ -31,10 +29,17 @@ function Page() {
           })
         }
       })
-  }, [branchName, searchParams, toast])
+  }
+  useEffect(() => {
+    toast({
+      duration: 1000,
+      description: `Loading data from ${branchName} branch...`,
+    })
+    fetchData()
+  }, [branchName, searchParams])
   return (
     <>
-      {branchName === 'main' && (
+      {branchName === 'main' ? (
         <Button
           onClick={() => {
             toast({
@@ -54,6 +59,35 @@ function Page() {
         >
           Clone &rarr;
         </Button>
+      ) : (
+        <div className="flex flex-col">
+          <Textarea
+            onChange={(e) => {
+              setQueryInput(e.target.value)
+            }}
+          />
+          <Button
+            onClick={() => {
+              setRows([])
+              setColumns([])
+              fetch('/project/query', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ branchName, query: queryInput }),
+              })
+                .then((res) => res.json())
+                .then((res) => {
+                  if (res.rows) {
+                    setRows(res.rows)
+                    // @ts-ignore
+                    setColumns(Object.keys(res.rows[0]))
+                  }
+                })
+            }}
+          >
+            Run
+          </Button>
+        </div>
       )}
       {rows.length > 0 && (
         <Table>
