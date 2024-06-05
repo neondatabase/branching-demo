@@ -21,7 +21,7 @@ function Page() {
     fetch(`/project/data?branchName=${branchName}`)
       .then((res) => res.json())
       .then((res) => {
-        if (res.rows) {
+        if (res.rows.length > 0) {
           setRows(res.rows)
           // @ts-ignore
           setColumns(Object.keys(res.rows[0]))
@@ -29,6 +29,9 @@ function Page() {
             duration: 1000,
             description: `Data from ${branchName} loaded.`,
           })
+        } else {
+          setRows([])
+          setColumns([])
         }
       })
   }
@@ -118,13 +121,15 @@ function Page() {
               })
                 .then((res) => res.json())
                 .then((res) => {
-                  if (res.rows) {
-                    fetchData()
+                  if (res.rows.length > 0) {
                     setResultRows(res.rows)
-                    // @ts-ignore
                     setResultColumns(Object.keys(res.rows[0]))
+                  } else {
+                    setResultRows([])
+                    setResultColumns([])
                   }
                 })
+                .finally(fetchData)
             }}
           >
             Run &rarr;
