@@ -13,6 +13,8 @@ function Page() {
   const searchParams = useSearchParams()
   const [rows, setRows] = useState([])
   const [columns, setColumns] = useState([])
+  const [resultRows, setResultRows] = useState([])
+  const [resultColumns, setResultColumns] = useState([])
   const [queryInput, setQueryInput] = useState('')
   const branchName = searchParams.get('branchName') || 'main'
   const fetchData = () => {
@@ -39,8 +41,15 @@ function Page() {
   }, [branchName, searchParams])
   return (
     <>
-      {branchName === 'main' ? (
+      <div className="flex flex-row items-center justify-between p-10">
+        <div className="flex flex-row">
+          <span>example/</span>
+          <span className="font-bold">{branchName}</span>
+        </div>
         <Button
+          variant="secondary"
+          className="max-w-max"
+          disabled={branchName !== 'main'}
           onClick={() => {
             toast({
               duration: 2000,
@@ -57,19 +66,51 @@ function Page() {
               })
           }}
         >
-          Clone &rarr;
+          <svg height="16" viewBox="0 0 16 16" version="1.1" width="16" className="mr-2">
+            <path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"></path>
+          </svg>
+          <span>Fork</span>
         </Button>
-      ) : (
-        <div className="flex flex-col">
+      </div>
+      <div className="flex flex-row">
+        {rows.length > 0 && (
+          <div className="w-screen max-w-6xl px-10">
+            <span className="font-semibold">playing_with_neon</span>
+            <Table className="mt-3 border-t">
+              <TableHeader>
+                <TableRow>
+                  {columns.map((i) => (
+                    <TableHead className="font-bold" key={i}>
+                      {i}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.map((i, idx) => (
+                  <TableRow key={idx}>
+                    {Object.values(i).map((j: any, idx2) => (
+                      <TableCell key={idx2}>{j}</TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+        <div className="flex grow flex-col pr-10">
           <Textarea
+            placeholder="SELECT * FROM playing_with_neon;"
             onChange={(e) => {
               setQueryInput(e.target.value)
             }}
           />
           <Button
+            variant="secondary"
+            className="mt-3 max-w-max"
             onClick={() => {
-              setRows([])
-              setColumns([])
+              setResultRows([])
+              setResultColumns([])
               fetch('/project/query', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -78,37 +119,40 @@ function Page() {
                 .then((res) => res.json())
                 .then((res) => {
                   if (res.rows) {
-                    setRows(res.rows)
+                    fetchData()
+                    setResultRows(res.rows)
                     // @ts-ignore
-                    setColumns(Object.keys(res.rows[0]))
+                    setResultColumns(Object.keys(res.rows[0]))
                   }
                 })
             }}
           >
-            Run
+            Run &rarr;
           </Button>
-        </div>
-      )}
-      {rows.length > 0 && (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {columns.map((i) => (
-                <TableHead key={i}>{i}</TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map((i, idx) => (
-              <TableRow key={idx}>
-                {Object.values(i).map((j: any, idx2) => (
-                  <TableCell key={idx2}>{j}</TableCell>
+          {resultRows.length > 0 && (
+            <Table className="mt-3 border-t">
+              <TableHeader>
+                <TableRow>
+                  {resultColumns.map((i) => (
+                    <TableHead className="font-bold" key={i}>
+                      {i}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {resultRows.map((i, idx) => (
+                  <TableRow key={idx}>
+                    {Object.values(i).map((j: any, idx2) => (
+                      <TableCell key={idx2}>{j}</TableCell>
+                    ))}
+                  </TableRow>
                 ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
+              </TableBody>
+            </Table>
+          )}
+        </div>
+      </div>
     </>
   )
 }
