@@ -6,7 +6,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
-export default function Home() {
+function Page() {
   const router = useRouter()
   const { toast } = useToast()
   const searchParams = useSearchParams()
@@ -33,7 +33,7 @@ export default function Home() {
       })
   }, [branchName, searchParams, toast])
   return (
-    <Suspense>
+    <>
       {branchName === 'main' && (
         <Button
           onClick={() => {
@@ -75,6 +75,14 @@ export default function Home() {
           </TableBody>
         </Table>
       )}
+    </>
+  )
+}
+
+export default function Home() {
+  return (
+    <Suspense>
+      <Page />
     </Suspense>
   )
 }
