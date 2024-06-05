@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
@@ -31,22 +31,22 @@ export default function Home() {
           })
         }
       })
-  }, [branchName, searchParams])
+  }, [branchName, searchParams, toast])
   return (
-    <>
+    <Suspense>
       {branchName === 'main' && (
         <Button
           onClick={() => {
             toast({
               duration: 2000,
-              description: `Creating a copy of data in ${branchName} branch...`
+              description: `Creating a copy of data in ${branchName} branch...`,
             })
             fetch('/project/create', { method: 'POST' })
               .then((res) => res.json())
               .then((res) => {
                 toast({
                   duration: 1000,
-                  description: `Loading your copy of ${branchName} branch...`
+                  description: `Loading your copy of ${branchName} branch...`,
                 })
                 router.push(`/?branchName=${res.new_branch_id}`)
               })
@@ -75,6 +75,6 @@ export default function Home() {
           </TableBody>
         </Table>
       )}
-    </>
+    </Suspense>
   )
 }
