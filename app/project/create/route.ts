@@ -1,0 +1,44 @@
+export const dynamic = 'force-dynamic'
+
+import { NextResponse } from 'next/server'
+import { neon } from '@neondatabase/serverless'
+
+export async function POST() {
+  const headers = new Headers()
+  headers.append('Accept', 'application/json')
+  headers.append('Content-Type', 'application/json')
+  headers.append('Authorization', `Bearer ${process.env.NEON_API_KEY}`)
+  const body = JSON.stringify({
+    endpoints: [
+      {
+        type: 'read_write',
+      },
+    ],
+    branch: {
+      parent_id: process.env.NEON_PARENT_ID,
+    },
+  })
+  const newCall = await fetch(`https://console.neon.tech/api/v2/projects/${process.env.NEON_PROJECT_ID}/branches`, {
+    method: 'POST',
+    headers,
+    body,
+  })
+  const newResp = await newCall.json()
+  const { connection_uris, branch } = newResp
+  const { id: new_branch_id } = branch
+  const { connection_uri: new_branch_connection_string } = connection_uris[0]
+  const sql = neon(`${process.env.DB_CONNECTION_STRING}`)
+  try {
+    // await sql`CREATE TABLE IF NOT EXISTS branches (branch_name TEXT, connection_string TEXT);`
+    await sql`INSERT INTO branches (branch_name, connection_string) VALUES (${new_branch_id}, ${new_branch_connection_string})`
+    return NextResponse.json({
+      new_branch_id,
+      code: 1,
+    })
+  } catch (e) {
+    console.log(e)
+    return NextResponse.json({
+      code: 0,
+    })
+  }
+}
