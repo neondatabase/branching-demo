@@ -12,9 +12,9 @@ function Page() {
   const { toast } = useToast()
   const searchParams = useSearchParams()
   const [rows, setRows] = useState([])
-  const [columns, setColumns] = useState([])
+  const [columns, setColumns] = useState<string[]>([])
   const [resultRows, setResultRows] = useState([])
-  const [resultColumns, setResultColumns] = useState([])
+  const [resultColumns, setResultColumns] = useState<string[]>([])
   const [queryInput, setQueryInput] = useState('')
   const branchName = searchParams.get('branchName') || 'main'
   const fetchData = () => {
@@ -23,7 +23,6 @@ function Page() {
       .then((res) => {
         if (res.rows.length > 0) {
           setRows(res.rows)
-          // @ts-ignore
           setColumns(Object.keys(res.rows[0]))
           toast({
             duration: 1000,
