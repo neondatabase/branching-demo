@@ -1,6 +1,6 @@
 'use client'
 
-import { generateUsername } from "unique-username-generator";
+import { generateUsername } from 'unique-username-generator'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useToast } from '@/components/ui/use-toast'
@@ -13,7 +13,7 @@ function getRandomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-function DataTable({ rows, columns }) {
+function DataTable({ rows, columns }: { rows: any[]; columns: any[] }) {
   return (
     <Table className="mt-3 border-t">
       {columns && (

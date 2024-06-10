@@ -32,7 +32,6 @@ export async function GET(request: NextRequest) {
     const connectionString = parent_rows[0]['connection_string']
     const sql_1 = neon(connectionString)
     const rows = await sql_1`SELECT * from playing_with_neon;`
-    console.log(connectionString)
     return NextResponse.json({
       sanitizedConnectionString: maskConnectionString(connectionString),
       rows,
