@@ -1,5 +1,6 @@
 'use client'
 
+import { generateUsername } from "unique-username-generator";
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useToast } from '@/components/ui/use-toast'
@@ -12,13 +13,33 @@ function getRandomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-function createRandomString(length: number) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  let result = ''
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length))
-  }
-  return result
+function DataTable({ rows, columns }) {
+  return (
+    <Table className="mt-3 border-t">
+      {columns && (
+        <TableHeader>
+          <TableRow>
+            {columns.map((i) => (
+              <TableHead className="font-bold" key={i}>
+                {i}
+              </TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+      )}
+      {rows && (
+        <TableBody>
+          {rows.map((i, idx) => (
+            <TableRow key={idx}>
+              {Object.values(i).map((j: any, idx2) => (
+                <TableCell key={idx2}>{j}</TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      )}
+    </Table>
+  )
 }
 
 function Page() {
@@ -119,26 +140,7 @@ function Page() {
             </div>
             <span className="mt-3 font-semibold">playing_with_neon</span>
             <span className="font-lighter mt-3 text-sm">{sourceConnectionString}</span>
-            <Table className="mt-3 border-t">
-              <TableHeader>
-                <TableRow>
-                  {columns.map((i) => (
-                    <TableHead className="font-bold" key={i}>
-                      {i}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.map((i, idx) => (
-                  <TableRow key={idx}>
-                    {Object.values(i).map((j: any, idx2) => (
-                      <TableCell key={idx2}>{j}</TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <DataTable rows={rows} columns={columns} />
           </div>
         )}
         {rows_2.length > 0 && (
@@ -179,7 +181,7 @@ function Page() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                       branchName: newBranchName,
-                      query: `INSERT INTO playing_with_neon (id, name, value) VALUES (${getRandomInt(10, 100)}, '${createRandomString(3)}', ${new Date().getTime()})`,
+                      query: `INSERT INTO playing_with_neon (id, name, value) VALUES (${getRandomInt(10, 100)}, '${generateUsername()}', ${new Date().getTime()})`,
                     }),
                   }).then(() => {
                     fetchData(newBranchName)
@@ -200,26 +202,7 @@ function Page() {
                 Reset
               </Button>
             </div>
-            <Table className="mt-3 border-t">
-              <TableHeader>
-                <TableRow>
-                  {columns_2.map((i) => (
-                    <TableHead className="font-bold" key={i}>
-                      {i}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows_2.map((i, idx) => (
-                  <TableRow key={idx}>
-                    {Object.values(i).map((j: any, idx2) => (
-                      <TableCell key={idx2}>{j}</TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <DataTable rows={rows_2} columns={columns_2} />
           </div>
         )}
       </div>
