@@ -1,36 +1,45 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { useToast } from '@/components/ui/use-toast'
-import { useEffect, useState, Suspense } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { useToast } from '@/components/ui/use-toast'
+import { useSearchParams } from 'next/navigation'
+import { Suspense, useEffect, useState } from 'react'
 
 function Page() {
-  const router = useRouter()
   const { toast } = useToast()
+  const [newBranchTime, setNewBranchTime] = useState(0)
+  const [newBranchName, setNewBranchName] = useState('')
   const searchParams = useSearchParams()
   const [rows, setRows] = useState([])
   const [columns, setColumns] = useState<string[]>([])
-  const [resultRows, setResultRows] = useState([])
-  const [resultColumns, setResultColumns] = useState<string[]>([])
-  const [queryInput, setQueryInput] = useState('')
+  const [rows_2, setRows2] = useState([])
+  const [columns_2, setColumns2] = useState<string[]>([])
   const branchName = searchParams.get('branchName') || 'main'
-  const fetchData = () => {
+  const fetchData = (branchName: string) => {
     fetch(`/project/data?branchName=${branchName}`)
       .then((res) => res.json())
       .then((res) => {
         if (res.rows.length > 0) {
-          setRows(res.rows)
-          setColumns(Object.keys(res.rows[0]))
+          if (branchName === 'main') {
+            setRows(res.rows)
+            setColumns(Object.keys(res.rows[0]))
+          } else {
+            setRows2(res.rows)
+            setColumns2(Object.keys(res.rows[0]))
+          }
           toast({
             duration: 1000,
             description: `Data from ${branchName} loaded.`,
           })
         } else {
-          setRows([])
-          setColumns([])
+          if (branchName === 'main') {
+            setRows([])
+            setColumns([])
+          } else {
+            setRows2([])
+            setColumns2([])
+          }
         }
       })
   }
@@ -39,15 +48,11 @@ function Page() {
       duration: 1000,
       description: `Loading data from ${branchName} branch...`,
     })
-    fetchData()
+    fetchData('main')
   }, [branchName, searchParams])
   return (
     <>
       <div className="flex flex-row items-center justify-between p-10">
-        <div className="flex flex-row">
-          <span>example/</span>
-          <span className="font-bold">{branchName}</span>
-        </div>
         <Button
           variant="secondary"
           className="max-w-max"
@@ -62,9 +67,11 @@ function Page() {
               .then((res) => {
                 toast({
                   duration: 1000,
-                  description: `Loading your copy of ${branchName} branch...`,
+                  description: `Creating a copy of ${branchName} branch...`,
                 })
-                router.push(`/?branchName=${res.new_branch_id}`)
+                setNewBranchName(res.new_branch_id)
+                setNewBranchTime(res.time)
+                fetchData(res.new_branch_id)
               })
           }}
         >
@@ -76,7 +83,11 @@ function Page() {
       </div>
       <div className="flex flex-row">
         {rows.length > 0 && (
-          <div className="w-screen max-w-6xl px-10">
+          <div className="w-1/2 px-10">
+            <div className="flex flex-row">
+              <span>example/</span>
+              <span className="font-bold">{branchName}</span>
+            </div>
             <span className="font-semibold">playing_with_neon</span>
             <Table className="mt-3 border-t">
               <TableHeader>
@@ -100,44 +111,19 @@ function Page() {
             </Table>
           </div>
         )}
-        <div className="flex grow flex-col pr-10">
-          <Textarea
-            placeholder="SELECT * FROM playing_with_neon;"
-            onChange={(e) => {
-              setQueryInput(e.target.value)
-            }}
-          />
-          <Button
-            variant="secondary"
-            className="mt-3 max-w-max"
-            onClick={() => {
-              setResultRows([])
-              setResultColumns([])
-              fetch('/project/query', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ branchName, query: queryInput }),
-              })
-                .then((res) => res.json())
-                .then((res) => {
-                  if (res.rows.length > 0) {
-                    setResultRows(res.rows)
-                    setResultColumns(Object.keys(res.rows[0]))
-                  } else {
-                    setResultRows([])
-                    setResultColumns([])
-                  }
-                })
-                .finally(fetchData)
-            }}
-          >
-            Run &rarr;
-          </Button>
-          {resultRows.length > 0 && (
+        {rows_2.length > 0 && (
+          <div className="w-1/2 px-10">
+            <div className="flex flex-row">
+              <span>example/</span>
+              <span className="font-bold">{newBranchName}</span>
+            </div>
+            <span className="font-semibold">
+              playing_with_neon <span className="font-light text-slate-600">(created in {Math.round(newBranchTime * 100) / 100} ms)</span>
+            </span>
             <Table className="mt-3 border-t">
               <TableHeader>
                 <TableRow>
-                  {resultColumns.map((i) => (
+                  {columns_2.map((i) => (
                     <TableHead className="font-bold" key={i}>
                       {i}
                     </TableHead>
@@ -145,7 +131,7 @@ function Page() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {resultRows.map((i, idx) => (
+                {rows_2.map((i, idx) => (
                   <TableRow key={idx}>
                     {Object.values(i).map((j: any, idx2) => (
                       <TableCell key={idx2}>{j}</TableCell>
@@ -154,8 +140,8 @@ function Page() {
                 ))}
               </TableBody>
             </Table>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </>
   )

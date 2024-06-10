@@ -20,12 +20,14 @@ export async function POST() {
       parent_id: process.env.NEON_PARENT_ID,
     },
   })
+  const start_time = performance.now()
   const newCall = await fetch(`https://console.neon.tech/api/v2/projects/${process.env.NEON_PROJECT_ID}/branches`, {
     method: 'POST',
     headers,
     body,
   })
   const newResp = await newCall.json()
+  const end_time = performance.now()
   const { connection_uris, branch } = newResp
   const { id: new_branch_id } = branch
   const { connection_uri: new_branch_connection_string } = connection_uris[0]
@@ -34,6 +36,7 @@ export async function POST() {
     // await sql`CREATE TABLE IF NOT EXISTS branches (branch_name TEXT, connection_string TEXT);`
     await sql`INSERT INTO branches (branch_name, connection_string) VALUES (${new_branch_id}, ${new_branch_connection_string})`
     return NextResponse.json({
+      time: end_time - start_time,
       new_branch_id,
       code: 1,
     })
