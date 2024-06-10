@@ -6,10 +6,27 @@ import { useToast } from '@/components/ui/use-toast'
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
 
+function getRandomInt(min: number, max: number) {
+  min = Math.ceil(min)
+  max = Math.floor(max)
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+function createRandomString(length: number) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let result = ''
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return result
+}
+
 function Page() {
   const { toast } = useToast()
   const [newBranchTime, setNewBranchTime] = useState(0)
   const [newBranchName, setNewBranchName] = useState('')
+  const [sourceConnectionString, setSourceConnectionString] = useState('')
+  const [destinationConnectionString, setDestinationConnectionString] = useState('')
   const searchParams = useSearchParams()
   const [rows, setRows] = useState([])
   const [columns, setColumns] = useState<string[]>([])
@@ -22,9 +39,11 @@ function Page() {
       .then((res) => {
         if (res.rows.length > 0) {
           if (branchName === 'main') {
+            setSourceConnectionString(res.sanitizedConnectionString)
             setRows(res.rows)
             setColumns(Object.keys(res.rows[0]))
           } else {
+            setDestinationConnectionString(res.sanitizedConnectionString)
             setRows2(res.rows)
             setColumns2(Object.keys(res.rows[0]))
           }
@@ -83,12 +102,13 @@ function Page() {
       </div>
       <div className="flex flex-row">
         {rows.length > 0 && (
-          <div className="w-1/2 px-10">
+          <div className="flex w-1/2 flex-col px-10">
             <div className="flex flex-row">
               <span>example/</span>
               <span className="font-bold">{branchName}</span>
             </div>
-            <span className="font-semibold">playing_with_neon</span>
+            <span className="mt-3 font-semibold">playing_with_neon</span>
+            <span className="font-lighter mt-3 text-sm">{sourceConnectionString}</span>
             <Table className="mt-3 border-t">
               <TableHeader>
                 <TableRow>
@@ -112,14 +132,64 @@ function Page() {
           </div>
         )}
         {rows_2.length > 0 && (
-          <div className="w-1/2 px-10">
+          <div className="flex w-1/2 flex-col px-10">
             <div className="flex flex-row">
               <span>example/</span>
               <span className="font-bold">{newBranchName}</span>
             </div>
-            <span className="font-semibold">
+            <span className="mt-3 font-semibold">
               playing_with_neon <span className="font-light text-slate-600">(created in {Math.round(newBranchTime * 100) / 100} ms)</span>
             </span>
+            <span className="font-lighter mt-3 text-sm">{destinationConnectionString}</span>
+            <div className="mt-3 flex flex-row flex-wrap gap-2">
+              <Button
+                variant="secondary"
+                className="max-w-max"
+                onClick={() => {
+                  fetch('/project/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      branchName: newBranchName,
+                      query: `WITH numbered_rows AS ( SELECT ctid, ROW_NUMBER() OVER (ORDER BY (SELECT 1)) as row_num FROM playing_with_neon ) DELETE FROM playing_with_neon WHERE ctid = ( SELECT ctid FROM numbered_rows WHERE row_num = 1 );`,
+                    }),
+                  }).then(() => {
+                    fetchData(newBranchName)
+                  })
+                }}
+              >
+                Drop A Row
+              </Button>
+              <Button
+                variant="secondary"
+                className="max-w-max"
+                onClick={() => {
+                  fetch('/project/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      branchName: newBranchName,
+                      query: `INSERT INTO playing_with_neon (id, name, value) VALUES (${getRandomInt(10, 100)}, '${createRandomString(3)}', ${new Date().getTime()})`,
+                    }),
+                  }).then(() => {
+                    fetchData(newBranchName)
+                  })
+                }}
+              >
+                Insert A Row
+              </Button>
+              <Button
+                variant="secondary"
+                className="max-w-max"
+                onClick={() => {
+                  fetch('/project/reset?branchName=' + newBranchName).then(() => {
+                    fetchData(newBranchName)
+                  })
+                }}
+              >
+                Reset
+              </Button>
+            </div>
             <Table className="mt-3 border-t">
               <TableHeader>
                 <TableRow>

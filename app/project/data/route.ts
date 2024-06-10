@@ -5,6 +5,16 @@ export const fetchCache = 'force-no-store'
 import { neon } from '@neondatabase/serverless'
 import { type NextRequest, NextResponse } from 'next/server'
 
+const maskConnectionString = (connectionString: string) => {
+  const urlPattern = /^(.*:\/\/)(.*:.*@)?(.*)$/
+  const matches = connectionString.match(urlPattern)
+  if (!matches) return 'Invalid connection string'
+  const protocol = matches[1]
+  const authPart = matches[2] ? '***:***@' : ''
+  const restOfString = matches[3]
+  return `${protocol}${authPart}${restOfString}`
+}
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const branchName = searchParams.get('branchName')
@@ -13,6 +23,7 @@ export async function GET(request: NextRequest) {
     if (branchName === 'main') {
       const rows = await sql`SELECT * FROM playing_with_neon`
       return NextResponse.json({
+        sanitizedConnectionString: maskConnectionString(`${process.env.DB_CONNECTION_STRING}`),
         rows,
         code: 1,
       })
@@ -23,6 +34,7 @@ export async function GET(request: NextRequest) {
     const rows = await sql_1`SELECT * from playing_with_neon;`
     console.log(connectionString)
     return NextResponse.json({
+      sanitizedConnectionString: maskConnectionString(connectionString),
       rows,
       code: 1,
     })
