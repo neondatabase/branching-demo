@@ -20,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={cn(fontSans.variable, 'flex min-h-screen w-screen flex-col px-8 font-sans antialiased md:px-0')}>
+    <html lang="en" className="dark">
+      <body className={cn(fontSans.variable, 'flex min-h-screen w-screen flex-col bg-black px-8 font-sans md:px-0')}>
         {children}
         <Toaster />
       </body>

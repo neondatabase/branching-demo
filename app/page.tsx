@@ -71,6 +71,15 @@ function Page() {
   }, [branchName, searchParams])
   return (
     <>
+      <div className="flex flex-col px-10 pt-10">
+        <h1 className="tracking-extra-tight text-balance text-[32px] font-semibold leading-[0.9] text-white lg:text-[44px] xl:text-[56px]">Postgres in under a second</h1>
+        <h2 className="tracking-extra-tight mt-[18px] text-balance text-xl font-light text-[#AFB1B6] md:mt-2 lg:mt-3 lg:text-base xl:mt-4 xl:text-lg">
+          Instantly provison a Postgres database on{' '}
+          <a className="text-white underline underline-offset-4 hover:no-underline" href="https://console.neon.tech/signup?ref=instant-postgres">
+            Neon
+          </a>
+        </h2>
+      </div>
       <div className="flex flex-row items-center justify-between p-10">
         <span></span>
         <Button
