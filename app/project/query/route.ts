@@ -11,8 +11,11 @@ export async function POST(request: NextRequest) {
   try {
     if (branchName === 'main') {
       if (query.includes('SELECT ')) {
+        const start_time = performance.now()
         const rows = await sql(query)
+        const end_time = performance.now()
         return NextResponse.json({
+          time: end_time - start_time,
           rows,
           code: 1,
         })
@@ -21,8 +24,11 @@ export async function POST(request: NextRequest) {
     const parent_rows = await sql`SELECT * FROM branches WHERE branch_name = ${branchName} LIMIT 1`
     const connectionString = parent_rows[0]['connection_string']
     const sql_1 = neon(connectionString)
+    const start_time = performance.now()
     const rows = await sql_1(query)
+    const end_time = performance.now()
     return NextResponse.json({
+      time: end_time - start_time,
       rows,
       code: 1,
     })

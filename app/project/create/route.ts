@@ -2,8 +2,8 @@ export const dynamic = 'force-dynamic'
 
 export const fetchCache = 'force-no-store'
 
-import { NextResponse } from 'next/server'
 import { neon } from '@neondatabase/serverless'
+import { NextResponse } from 'next/server'
 
 export async function POST() {
   const headers = new Headers()

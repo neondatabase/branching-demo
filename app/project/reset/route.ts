@@ -12,12 +12,15 @@ export async function GET(request: NextRequest) {
   headers.append('Content-Type', 'application/json')
   headers.append('Authorization', `Bearer ${process.env.NEON_API_KEY}`)
   const body = JSON.stringify({ source_branch_id: process.env.NEON_PARENT_ID })
+  const start_time = performance.now()
   await fetch(`https://console.neon.tech/api/v2/projects/${process.env.NEON_PROJECT_ID}/branches/${branchName}/restore`, {
     method: 'POST',
     headers,
     body,
   })
+  const end_time = performance.now()
   return NextResponse.json({
+    time: end_time - start_time,
     code: 1,
   })
 }
