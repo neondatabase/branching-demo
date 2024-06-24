@@ -44,10 +44,12 @@ function DataTable({ rows, columns }: { rows: any[]; columns: any[] }) {
 function Page() {
   const { toast } = useToast()
   const [newBranchTime, setNewBranchTime] = useState(0)
-  const [resetBranchTime, setResetBranchTime] = useState(0)
-  const [dropBranchTime, setDropBranchTime] = useState(0)
-  const [insertBranchTime, setInsertBranchTime] = useState(0)
+  const [newBranchSize, setNewBranchSize] = useState(0)
   const [newBranchName, setNewBranchName] = useState('')
+  const [dropBranchTime, setDropBranchTime] = useState(0)
+  const [mainBranchSize, setMainBranchSize] = useState(0)
+  const [resetBranchTime, setResetBranchTime] = useState(0)
+  const [insertBranchTime, setInsertBranchTime] = useState(0)
   const [sourceConnectionString, setSourceConnectionString] = useState('')
   const [destinationConnectionString, setDestinationConnectionString] = useState('')
   const searchParams = useSearchParams()
@@ -62,9 +64,20 @@ function Page() {
   const [rows_5, setRows5] = useState([])
   const [columns_5, setColumns5] = useState<string[]>([])
   const branchName = searchParams.get('branchName') || 'main'
+  const fetchBranchSize = (branchName: string) =>
+    fetch(`/project/size?branchName=${branchName}`)
+      .then((res) => res.json())
+      .then((res) => {
+        const { logical_size } = res
+        if (branchName === 'main') setMainBranchSize(logical_size)
+        else setNewBranchSize(logical_size === 'NaN' ? mainBranchSize : logical_size)
+      })
   const fetchData = (branchName: string) =>
     fetch(`/project/data?branchName=${branchName}`)
-      .then((res) => res.json())
+      .then((res) => {
+        fetchBranchSize(branchName)
+        return res.json()
+      })
       .then((res) => {
         if (res.rows.length > 0) {
           if (branchName === 'main') {
@@ -142,7 +155,7 @@ function Page() {
                   description: `Creating a copy of ${branchName} branch...`,
                 })
                 setNewBranchName(res.new_branch_id)
-                setNewBranchTime(res.time)
+                if (res.time) setNewBranchTime(res.time)
                 fetchData(res.new_branch_id).then(() => {
                   setTimeout(() => {
                     document.getElementById('provisioned')?.scrollIntoView({
@@ -166,6 +179,10 @@ function Page() {
               <span>Branch:&nbsp;</span>
               <span className="font-bold">{branchName}</span>
             </div>
+            <div className="flex flex-row">
+              <span>Branch Size:&nbsp;</span>
+              <span className="font-bold">{mainBranchSize} GiB</span>
+            </div>
             <div className="mt-2 flex flex-row">
               <span>Connection String:&nbsp;</span>
               <span className="font-bold">{sourceConnectionString}</span>
@@ -182,6 +199,10 @@ function Page() {
             <div className="flex flex-row">
               <span>Branch:&nbsp;</span>
               <span className="font-bold">{newBranchName}</span>
+            </div>
+            <div className="flex flex-row">
+              <span>Branch Size:&nbsp;</span>
+              <span className="font-bold">{newBranchSize} GiB</span>
             </div>
             <div className="mt-2 flex flex-row">
               <span>Connection String:&nbsp;</span>
@@ -201,7 +222,7 @@ function Page() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                       branchName: newBranchName,
-                      query: `WITH numbered_rows AS ( SELECT ctid, ROW_NUMBER() OVER (ORDER BY (SELECT 1)) as row_num FROM playing_with_neon ) DELETE FROM playing_with_neon WHERE ctid = ( SELECT ctid FROM numbered_rows WHERE row_num = 1 );`,
+                      query: `WITH numbered_rows AS ( SELECT ctid, ROW_NUMBER() OVER (ORDER BY (SELECT 1)) as row_num FROM playing_with_neon ) DELETE FROM playing_with_neon WHERE ctid = ( SELECT ctid FROM numbered_rows WHERE row_num = 1 )`,
                     }),
                   })
                     .then((res) => res.json())
@@ -229,6 +250,10 @@ function Page() {
             <div className="flex flex-row">
               <span>Branch:&nbsp;</span>
               <span className="font-bold">{newBranchName}</span>
+            </div>
+            <div className="flex flex-row">
+              <span>Branch Size:&nbsp;</span>
+              <span className="font-bold">{newBranchSize} GiB</span>
             </div>
             <div className="mt-2 flex flex-row">
               <span>Connection String:&nbsp;</span>
@@ -279,6 +304,10 @@ function Page() {
               <span>Branch:&nbsp;</span>
               <span className="font-bold">{newBranchName}</span>
             </div>
+            <div className="flex flex-row">
+              <span>Branch Size:&nbsp;</span>
+              <span className="font-bold">{newBranchSize} GiB</span>
+            </div>
             <div className="mt-2 flex flex-row">
               <span>Connection String:&nbsp;</span>
               <span className="font-bold">{destinationConnectionString}</span>
@@ -298,6 +327,9 @@ function Page() {
                     .then((res) => res.json())
                     .then((res) => {
                       if (res.time) setResetBranchTime(res.time)
+                      toast({
+                        description: 'Requesting branch reset...',
+                      })
                       fetchData(newBranchName).then(() => {
                         setTimeout(() => {
                           document.getElementById('resetted-branch')?.scrollIntoView({
@@ -320,6 +352,10 @@ function Page() {
             <div className="flex flex-row">
               <span>Branch:&nbsp;</span>
               <span className="font-bold">{newBranchName}</span>
+            </div>
+            <div className="flex flex-row">
+              <span>Branch Size:&nbsp;</span>
+              <span className="font-bold">{newBranchSize} GiB</span>
             </div>
             <div className="mt-2 flex flex-row">
               <span>Connection String:&nbsp;</span>

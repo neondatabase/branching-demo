@@ -33,7 +33,7 @@ export async function POST() {
   const { connection_uri: new_branch_connection_string } = connection_uris[0]
   const sql = neon(`${process.env.DB_CONNECTION_STRING}`)
   try {
-    // await sql`CREATE TABLE IF NOT EXISTS branches (branch_name TEXT PRIMARY KEY, connection_string TEXT);`
+    // await sql`CREATE TABLE IF NOT EXISTS branches (branch_name TEXT PRIMARY KEY, connection_string TEXT)`
     await sql`INSERT INTO branches (branch_name, connection_string) VALUES (${new_branch_id}, ${new_branch_connection_string})`
     return NextResponse.json({
       time: end_time - start_time,
