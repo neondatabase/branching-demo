@@ -327,7 +327,9 @@ function Page() {
             </div>
             <div className="mt-2 flex flex-row">
               <span>Table:&nbsp;</span>
-              <span className="font-bold">playing_with_neon {resetBranchTime && <span>(reset branch in {Math.round(resetBranchTime * 100) / 100} ms)</span>}</span>
+              <span className="font-bold">
+                playing_with_neon {resetBranchTime && <span className="font-light">(reset branch in {Math.round(resetBranchTime * 100) / 100} ms)</span>}
+              </span>
             </div>
             <DataTable rows={rows_5} columns={columns_5} />
           </div>
