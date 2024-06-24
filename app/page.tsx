@@ -112,7 +112,7 @@ function Page() {
   return (
     <div className="mx-auto mb-24 max-w-screen-lg">
       <div className="flex flex-col">
-        <h1 className="tracking-extra-tight text-balance text-[32px] font-semibold leading-[0.9] text-white lg:text-[44px] xl:text-[56px]">Database branches in subseconds</h1>
+        <h1 className="tracking-extra-tight text-balance text-[32px] font-semibold leading-[0.9] text-white lg:text-[44px] xl:text-[56px]">Database branches in milliseconds</h1>
         <h2 className="tracking-extra-tight mt-[18px] text-balance text-xl font-light text-[#AFB1B6] md:mt-2 lg:mt-3 lg:text-base xl:mt-4 xl:text-lg">
           Instantly provison isolated branches of a Postgres database on&nbsp;
           <a className="text-white underline underline-offset-4 hover:no-underline" href="https://console.neon.tech/signup">
@@ -249,16 +249,18 @@ function Page() {
                       branchName: newBranchName,
                       query: `INSERT INTO playing_with_neon (id, name, value) VALUES (${getRandomInt(10, 100)}, '${generateUsername()}', ${new Date().getTime()})`,
                     }),
-                  }).then((res) => res.json()).then((res) => {
-                    // if (res.time) setInsertBranchTime(res.time)
-                    fetchData(newBranchName).then(() => {
-                      setTimeout(() => {
-                        document.getElementById('reset-row')?.scrollIntoView({
-                          behavior: 'smooth',
-                        })
-                      }, 200)
-                    })
                   })
+                    .then((res) => res.json())
+                    .then((res) => {
+                      if (res.time) setInsertBranchTime(res.time)
+                      fetchData(newBranchName).then(() => {
+                        setTimeout(() => {
+                          document.getElementById('reset-row')?.scrollIntoView({
+                            behavior: 'smooth',
+                          })
+                        }, 200)
+                      })
+                    })
                 }}
               >
                 <CirclePlus size="18" />

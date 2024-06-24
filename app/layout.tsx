@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={cn(fontSans.variable, 'min-h-lvh w-full bg-black bg-[url(https://volta.net/home/hero.png)] bg-cover px-6 pt-24 font-sans md:px-4 lg:px-8')}>
+      <body className={cn(fontSans.variable, 'min-h-lvh w-full bg-black bg-cover px-6 pt-24 font-sans md:px-4 lg:px-8')}>
         {children}
         <Toaster />
       </body>
