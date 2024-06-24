@@ -45,6 +45,8 @@ function Page() {
   const { toast } = useToast()
   const [newBranchTime, setNewBranchTime] = useState(0)
   const [resetBranchTime, setResetBranchTime] = useState(0)
+  const [dropBranchTime, setDropBranchTime] = useState(0)
+  const [insertBranchTime, setInsertBranchTime] = useState(0)
   const [newBranchName, setNewBranchName] = useState('')
   const [sourceConnectionString, setSourceConnectionString] = useState('')
   const [destinationConnectionString, setDestinationConnectionString] = useState('')
@@ -187,9 +189,7 @@ function Page() {
             </div>
             <div className="mt-2 flex flex-row">
               <span>Table:&nbsp;</span>
-              <span className="font-bold">
-                playing_with_neon <span>(created in {Math.round(newBranchTime * 100) / 100} ms)</span>
-              </span>
+              <span className="font-bold">playing_with_neon {newBranchTime && <span className="font-light">(created in {Math.round(newBranchTime * 100) / 100} ms)</span>}</span>
             </div>
             <div className="mt-3 flex flex-row flex-wrap gap-2">
               <Button
@@ -203,15 +203,18 @@ function Page() {
                       branchName: newBranchName,
                       query: `WITH numbered_rows AS ( SELECT ctid, ROW_NUMBER() OVER (ORDER BY (SELECT 1)) as row_num FROM playing_with_neon ) DELETE FROM playing_with_neon WHERE ctid = ( SELECT ctid FROM numbered_rows WHERE row_num = 1 );`,
                     }),
-                  }).then(() => {
-                    fetchData(newBranchName).then(() => {
-                      setTimeout(() => {
-                        document.getElementById('insert-row')?.scrollIntoView({
-                          behavior: 'smooth',
-                        })
-                      }, 200)
-                    })
                   })
+                    .then((res) => res.json())
+                    .then((res) => {
+                      if (res.time) setDropBranchTime(res.time)
+                      fetchData(newBranchName).then(() => {
+                        setTimeout(() => {
+                          document.getElementById('insert-row')?.scrollIntoView({
+                            behavior: 'smooth',
+                          })
+                        }, 200)
+                      })
+                    })
                 }}
               >
                 <CircleMinus size="18" />
@@ -234,7 +237,7 @@ function Page() {
             <div className="mt-2 flex flex-row">
               <span>Table:&nbsp;</span>
               <span className="font-bold">
-                playing_with_neon <span>(created in {Math.round(newBranchTime * 100) / 100} ms)</span>
+                playing_with_neon {dropBranchTime && <span className="font-light">(dropped a row in {Math.round(dropBranchTime * 100) / 100} ms)</span>}
               </span>
             </div>
             <div className="mt-3 flex flex-row flex-wrap gap-2">
@@ -283,8 +286,7 @@ function Page() {
             <div className="mt-2 flex flex-row">
               <span>Table:&nbsp;</span>
               <span className="font-bold">
-                playing_with_neon
-                {/* <span>(inserted a row in {Math.round(insertBranchTime * 100) / 100} ms)</span> */}
+                playing_with_neon {insertBranchTime && <span className="font-light">(inserted a row in {Math.round(insertBranchTime * 100) / 100} ms)</span>}
               </span>
             </div>
             <div className="mt-3 flex flex-row flex-wrap gap-2">
