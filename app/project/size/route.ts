@@ -18,7 +18,6 @@ export async function GET(request: NextRequest) {
     })
     const tmp = await respCall.json()
     const { logical_size } = tmp.branch
-    console.log(logical_size, branchName)
     return NextResponse.json({ logical_size: (logical_size / (1024 * 1024 * 1024)).toFixed(2) })
   } catch (e) {
     console.log(e)
