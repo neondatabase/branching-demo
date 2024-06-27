@@ -9,7 +9,7 @@ import { Suspense, useEffect, useState } from 'react'
 import { generateUsername } from 'unique-username-generator'
 import Confetti from 'react-confetti'
 
-function DataTable({ rows, columns, highlight = 0 }: { rows: any[]; columns: any[]; highlight: number }) {
+function DataTable({ rows, columns, highlight = 0 }: { rows: any[]; columns: any[]; highlight?: number }) {
   return (
     <>
       <div className="mt-8 flex flex-row">
