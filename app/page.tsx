@@ -120,7 +120,7 @@ function Page() {
           }
           toast({
             duration: 1000,
-            description: `Data from ${branchName} loaded.`,
+            description: `Data from ${branchName} database loaded.`,
           })
         } else {
           if (branchName === 'main') {
@@ -135,7 +135,7 @@ function Page() {
   useEffect(() => {
     toast({
       duration: 1000,
-      description: `Loading data from ${branchName} branch...`,
+      description: `Loading data from ${branchName} database...`,
     })
     fetchData('main')
   }, [branchName, searchParams])
@@ -178,7 +178,7 @@ function Page() {
               setButton1(true)
               toast({
                 duration: 2000,
-                description: `Creating a copy of data in ${branchName} branch...`,
+                description: `Creating a copy of data in ${branchName} database...`,
               })
               driverObj.destroy()
               fetch('/project/create', { method: 'POST' })
@@ -186,7 +186,7 @@ function Page() {
                 .then((res) => {
                   toast({
                     duration: 1000,
-                    description: `Creating a copy of ${branchName} branch...`,
+                    description: `Creating a copy of ${branchName} database...`,
                   })
                   setNewBranchName(res.new_branch_id)
                   if (res.time) setNewBranchTime(res.time)
@@ -219,11 +219,11 @@ function Page() {
           {rows.length > 0 && (
             <div className="flex w-full flex-col">
               <div className="flex flex-row">
-                <span>Branch Name:&nbsp;</span>
+                <span>Database Name:&nbsp;</span>
                 <span className="font-bold">{branchName}</span>
               </div>
               <div className="mt-2 flex flex-row">
-                <span>Branch Size:&nbsp;</span>
+                <span>Database Size:&nbsp;</span>
                 <span className="font-bold">{mainBranchSize} GiB</span>
               </div>
               <div className="mt-2 flex flex-row">
@@ -236,11 +236,11 @@ function Page() {
           {rows_2.length > 0 && (
             <div id="provisioned" className="flex w-full flex-col pt-24">
               <div className="flex flex-row">
-                <span>Branch Name:&nbsp;</span>
+                <span>Database Name:&nbsp;</span>
                 <span className="font-bold">{newBranchName}</span>
               </div>
               <div className="mt-2 flex flex-row">
-                <span>Branch Size:&nbsp;</span>
+                <span>Database Size:&nbsp;</span>
                 <span className="font-bold">{newBranchSize} GiB</span>
               </div>
               <div className="mt-2 flex flex-row">
@@ -250,7 +250,7 @@ function Page() {
               {newBranchTime > 0 && (
                 <div className="mt-2 flex flex-row">
                   <span>
-                    Created a new branch in <span className="font-bold text-[#00e5bf]">{Math.round(newBranchTime * 100) / 100} ms</span>
+                    Created a new database in <span className="font-bold text-[#00e5bf]">{Math.round(newBranchTime * 100) / 100} ms</span>
                   </span>
                 </div>
               )}
@@ -302,11 +302,11 @@ function Page() {
           {rows_3.length > 0 && (
             <div id="insert-row" className="flex w-full flex-col pt-24">
               <div className="flex flex-row">
-                <span>Branch Name:&nbsp;</span>
+                <span>Database Name:&nbsp;</span>
                 <span className="font-bold">{newBranchName}</span>
               </div>
               <div className="mt-2 flex flex-row">
-                <span>Branch Size:&nbsp;</span>
+                <span>Database Size:&nbsp;</span>
                 <span className="font-bold">{newBranchSize} GiB</span>
               </div>
               <div className="mt-2 flex flex-row">
@@ -369,11 +369,11 @@ function Page() {
           {rows_4.length > 0 && (
             <div id="reset-row" className="flex w-full flex-col pt-24">
               <div className="flex flex-row">
-                <span>Branch Name:&nbsp;</span>
+                <span>Database Name:&nbsp;</span>
                 <span className="font-bold">{newBranchName}</span>
               </div>
               <div className="mt-2 flex flex-row">
-                <span>Branch Size:&nbsp;</span>
+                <span>Database Size:&nbsp;</span>
                 <span className="font-bold">{newBranchSize} GiB</span>
               </div>
               <div className="mt-2 flex flex-row">
@@ -397,7 +397,7 @@ function Page() {
                     setButton4(true)
                     driverObj.destroy()
                     toast({
-                      description: 'Requesting branch reset...',
+                      description: 'Requesting database reset...',
                     })
                     fetch('/project/reset?branchName=' + newBranchName)
                       .then((res) => res.json())
@@ -414,7 +414,7 @@ function Page() {
                   }}
                 >
                   <TimerReset size="18" />
-                  <span className="ml-3">Reset the branch</span>
+                  <span className="ml-3">Reset the database</span>
                 </Button>
               </div>
               <DataTable highlight={1} rows={rows_4} columns={columns_4} />
@@ -423,11 +423,11 @@ function Page() {
           {rows_5.length > 0 && (
             <div id="resetted-branch" className="flex w-full flex-col pt-24">
               <div className="flex flex-row">
-                <span>Branch Name:&nbsp;</span>
+                <span>Database Name:&nbsp;</span>
                 <span className="font-bold">{newBranchName}</span>
               </div>
               <div className="mt-2 flex flex-row">
-                <span>Branch Size:&nbsp;</span>
+                <span>Database Size:&nbsp;</span>
                 <span className="font-bold">{newBranchSize} GiB</span>
               </div>
               <div className="mt-2 flex flex-row">
@@ -437,7 +437,7 @@ function Page() {
               {resetBranchTime > 0 && (
                 <div className="mt-2 flex flex-row">
                   <span>
-                    Branch reset in <span className="font-bold text-[#00e5bf]">{Math.round(resetBranchTime * 100) / 100} ms</span>
+                    database reset in <span className="font-bold text-[#00e5bf]">{Math.round(resetBranchTime * 100) / 100} ms</span>
                   </span>
                 </div>
               )}
