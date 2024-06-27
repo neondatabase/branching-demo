@@ -7,42 +7,44 @@ import { CircleMinus, CirclePlus, TimerReset } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
 import { generateUsername } from 'unique-username-generator'
-
-function getRandomInt(min: number, max: number) {
-  min = Math.ceil(min)
-  max = Math.floor(max)
-  return Math.floor(Math.random() * (max - min + 1)) + min
-}
+import Confetti from 'react-confetti'
 
 function DataTable({ rows, columns }: { rows: any[]; columns: any[] }) {
   return (
-    <Table className="mt-8 border-t">
-      {columns && (
-        <TableHeader>
-          <TableRow>
-            {columns.map((i) => (
-              <TableHead key={i}>{i}</TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-      )}
-      {rows && (
-        <TableBody>
-          {rows.map((i, idx) => (
-            <TableRow key={idx}>
-              {Object.values(i).map((j: any, idx2) => (
-                <TableCell key={idx2}>{j}</TableCell>
+    <>
+      <div className="mt-8 flex flex-row">
+        <span>Table:&nbsp;</span>
+        <span>playing_with_neon</span>
+      </div>
+      <Table className="mt-2 border-t">
+        {columns && (
+          <TableHeader>
+            <TableRow>
+              {columns.map((i) => (
+                <TableHead key={i}>{i}</TableHead>
               ))}
             </TableRow>
-          ))}
-        </TableBody>
-      )}
-    </Table>
+          </TableHeader>
+        )}
+        {rows && (
+          <TableBody>
+            {rows.map((i, idx) => (
+              <TableRow key={idx}>
+                {Object.values(i).map((j: any, idx2) => (
+                  <TableCell key={idx2}>{j}</TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        )}
+      </Table>
+    </>
   )
 }
 
 function Page() {
   const { toast } = useToast()
+  const [isVisible, setIsVisible] = useState(false)
   const [newBranchTime, setNewBranchTime] = useState(0)
   const [newBranchSize, setNewBranchSize] = useState(0)
   const [newBranchName, setNewBranchName] = useState('')
@@ -101,6 +103,12 @@ function Page() {
               setDestinationConnectionString(res.sanitizedConnectionString)
               setRows5(res.rows)
               setColumns5(Object.keys(res.rows[0]))
+              setTimeout(() => {
+                setIsVisible(true)
+                setTimeout(() => {
+                  setIsVisible(false)
+                }, 3000)
+              }, 1000)
             }
           }
           toast({
@@ -125,253 +133,262 @@ function Page() {
     fetchData('main')
   }, [branchName, searchParams])
   return (
-    <div className="mx-auto mb-24 max-w-screen-lg">
-      <div className="flex flex-col">
-        <h1 className="tracking-extra-tight text-balance text-[32px] font-semibold leading-[0.9] text-white lg:text-[44px] xl:text-[56px]">Database branches in milliseconds</h1>
-        <h2 className="tracking-extra-tight mt-[18px] text-balance text-xl font-light text-[#AFB1B6] md:mt-2 lg:mt-3 lg:text-base xl:mt-4 xl:text-lg">
-          Instantly provison isolated branches of a Postgres database on&nbsp;
-          <a className="text-white underline underline-offset-4 hover:no-underline" href="https://console.neon.tech/signup">
-            Neon
-          </a>
-          .
-        </h2>
-      </div>
-      <div className="flex flex-row items-center py-10">
-        <span></span>
-        <Button
-          variant="outline"
-          className="max-w-max bg-transparent"
-          disabled={newBranchName.length > 0}
-          onClick={() => {
-            toast({
-              duration: 2000,
-              description: `Creating a copy of data in ${branchName} branch...`,
-            })
-            fetch('/project/create', { method: 'POST' })
-              .then((res) => res.json())
-              .then((res) => {
-                toast({
-                  duration: 1000,
-                  description: `Creating a copy of ${branchName} branch...`,
-                })
-                setNewBranchName(res.new_branch_id)
-                if (res.time) setNewBranchTime(res.time)
-                fetchData(res.new_branch_id).then(() => {
-                  setTimeout(() => {
-                    document.getElementById('provisioned')?.scrollIntoView({
-                      behavior: 'smooth',
-                    })
-                  }, 200)
-                })
+    <>
+      {isVisible && (
+        <div className="fixed left-0 top-0 h-screen w-screen">
+          <Confetti />
+        </div>
+      )}
+      <div className="mx-auto mb-24 max-w-screen-lg">
+        <div className="flex flex-col">
+          <h1 className="tracking-extra-tight text-balance text-[32px] font-semibold leading-[0.9] text-white lg:text-[44px] xl:text-[56px]">Database branches in milliseconds</h1>
+          <h2 className="tracking-extra-tight mt-[18px] text-balance text-xl font-light text-[#AFB1B6] md:mt-2 lg:mt-3 lg:text-base xl:mt-4 xl:text-lg">
+            Instantly provison isolated branches of a Postgres database on&nbsp;
+            <a className="text-white underline underline-offset-4 hover:no-underline" href="https://console.neon.tech/signup">
+              Neon
+            </a>
+            .
+          </h2>
+        </div>
+        <div className="flex flex-row items-center py-10">
+          <span></span>
+          <Button
+            id="createBranchButton"
+            className="max-w-max bg-white shadow hover:scale-105 hover:bg-[#00e5bf]"
+            disabled={newBranchName.length > 0}
+            onClick={() => {
+              toast({
+                duration: 2000,
+                description: `Creating a copy of data in ${branchName} branch...`,
               })
-          }}
-        >
-          <svg height="16" viewBox="0 0 16 16" version="1.1" width="16" className="mr-2 fill-white">
-            <path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"></path>
-          </svg>
-          <span>Create new branch</span>
-        </Button>
-      </div>
-      <div className="flex w-full flex-row flex-wrap">
-        {rows.length > 0 && (
-          <div className="flex w-full flex-col">
-            <div className="flex flex-row">
-              <span>Branch:&nbsp;</span>
-              <span className="font-bold">{branchName}</span>
-            </div>
-            <div className="flex flex-row">
-              <span>Branch Size:&nbsp;</span>
-              <span className="font-bold">{mainBranchSize} GiB</span>
-            </div>
-            <div className="mt-2 flex flex-row">
-              <span>Connection String:&nbsp;</span>
-              <span className="font-bold">{sourceConnectionString}</span>
-            </div>
-            <div className="mt-2 flex flex-row">
-              <span>Table:&nbsp;</span>
-              <span className="font-bold">playing_with_neon</span>
-            </div>
-            <DataTable rows={rows} columns={columns} />
-          </div>
-        )}
-        {rows_2.length > 0 && (
-          <div id="provisioned" className="mt-24 flex w-full flex-col">
-            <div className="flex flex-row">
-              <span>Branch:&nbsp;</span>
-              <span className="font-bold">{newBranchName}</span>
-            </div>
-            <div className="flex flex-row">
-              <span>Branch Size:&nbsp;</span>
-              <span className="font-bold">{newBranchSize} GiB</span>
-            </div>
-            <div className="mt-2 flex flex-row">
-              <span>Connection String:&nbsp;</span>
-              <span className="font-bold">{destinationConnectionString}</span>
-            </div>
-            <div className="mt-2 flex flex-row">
-              <span>Table:&nbsp;</span>
-              <span className="font-bold">playing_with_neon {newBranchTime && <span className="font-light">(created in {Math.round(newBranchTime * 100) / 100} ms)</span>}</span>
-            </div>
-            <div className="mt-3 flex flex-row flex-wrap gap-2">
-              <Button
-                variant="outline"
-                className="max-w-max bg-transparent"
-                onClick={() => {
-                  fetch('/project/query', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      branchName: newBranchName,
-                      query: `WITH numbered_rows AS ( SELECT ctid, ROW_NUMBER() OVER (ORDER BY (SELECT 1)) as row_num FROM playing_with_neon ) DELETE FROM playing_with_neon WHERE ctid = ( SELECT ctid FROM numbered_rows WHERE row_num = 1 )`,
-                    }),
+              fetch('/project/create', { method: 'POST' })
+                .then((res) => res.json())
+                .then((res) => {
+                  toast({
+                    duration: 1000,
+                    description: `Creating a copy of ${branchName} branch...`,
                   })
-                    .then((res) => res.json())
-                    .then((res) => {
-                      if (res.time) setDropBranchTime(res.time)
-                      fetchData(newBranchName).then(() => {
-                        setTimeout(() => {
-                          document.getElementById('insert-row')?.scrollIntoView({
-                            behavior: 'smooth',
-                          })
-                        }, 200)
+                  setNewBranchName(res.new_branch_id)
+                  if (res.time) setNewBranchTime(res.time)
+                  fetchData(res.new_branch_id).then(() => {
+                    setTimeout(() => {
+                      document.getElementById('provisioned')?.scrollIntoView({
+                        behavior: 'smooth',
                       })
-                    })
-                }}
-              >
-                <CircleMinus size="18" />
-                <span className="ml-3">Drop A Row</span>
-              </Button>
-            </div>
-            <DataTable rows={rows_2} columns={columns_2} />
-          </div>
-        )}
-        {rows_3.length > 0 && (
-          <div id="insert-row" className="mt-24 flex w-full flex-col">
-            <div className="flex flex-row">
-              <span>Branch:&nbsp;</span>
-              <span className="font-bold">{newBranchName}</span>
-            </div>
-            <div className="flex flex-row">
-              <span>Branch Size:&nbsp;</span>
-              <span className="font-bold">{newBranchSize} GiB</span>
-            </div>
-            <div className="mt-2 flex flex-row">
-              <span>Connection String:&nbsp;</span>
-              <span className="font-bold">{destinationConnectionString}</span>
-            </div>
-            <div className="mt-2 flex flex-row">
-              <span>Table:&nbsp;</span>
-              <span className="font-bold">
-                playing_with_neon {dropBranchTime && <span className="font-light">(dropped a row in {Math.round(dropBranchTime * 100) / 100} ms)</span>}
-              </span>
-            </div>
-            <div className="mt-3 flex flex-row flex-wrap gap-2">
-              <Button
-                variant="outline"
-                className="max-w-max bg-transparent"
-                onClick={() => {
-                  fetch('/project/query', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      branchName: newBranchName,
-                      query: `INSERT INTO playing_with_neon (id, name, value) VALUES (${getRandomInt(10, 100)}, '${generateUsername()}', ${new Date().getTime()})`,
-                    }),
+                    }, 200)
                   })
-                    .then((res) => res.json())
-                    .then((res) => {
-                      if (res.time) setInsertBranchTime(res.time)
-                      fetchData(newBranchName).then(() => {
-                        setTimeout(() => {
-                          document.getElementById('reset-row')?.scrollIntoView({
-                            behavior: 'smooth',
-                          })
-                        }, 200)
-                      })
+                })
+            }}
+          >
+            <svg height="16" viewBox="0 0 16 16" version="1.1" width="16" className="mr-2 fill-black">
+              <path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"></path>
+            </svg>
+            <span>Create new branch</span>
+          </Button>
+        </div>
+        <div className="flex w-full flex-row flex-wrap">
+          {rows.length > 0 && (
+            <div className="flex w-full flex-col">
+              <div className="flex flex-row">
+                <span>Branch Name:&nbsp;</span>
+                <span className="font-bold">{branchName}</span>
+              </div>
+              <div className="mt-2 flex flex-row">
+                <span>Branch Size:&nbsp;</span>
+                <span className="font-bold">{mainBranchSize} GiB</span>
+              </div>
+              <div className="mt-2 flex flex-row">
+                <span>Connection String:&nbsp;</span>
+                <span className="font-bold">{sourceConnectionString}</span>
+              </div>
+              <DataTable rows={rows} columns={columns} />
+            </div>
+          )}
+          {rows_2.length > 0 && (
+            <div id="provisioned" className="flex w-full flex-col pt-24">
+              <div className="flex flex-row">
+                <span>Branch:&nbsp;</span>
+                <span className="font-bold">{newBranchName}</span>
+              </div>
+              <div className="mt-2 flex flex-row">
+                <span>Branch Size:&nbsp;</span>
+                <span className="font-bold">{newBranchSize} GiB</span>
+              </div>
+              <div className="mt-2 flex flex-row">
+                <span>Connection String:&nbsp;</span>
+                <span className="font-bold">{destinationConnectionString}</span>
+              </div>
+              {newBranchTime && (
+                <div className="mt-2 flex flex-row">
+                  <span className="">
+                    Created a new branch in <span className="font-bold text-[#00e5bf]">{Math.round(newBranchTime * 100) / 100} ms</span>
+                  </span>
+                </div>
+              )}
+              <div className="mt-3 flex flex-row flex-wrap gap-2">
+                <Button
+                  disabled={rows_3.length > 0}
+                  className="max-w-max bg-white shadow hover:scale-105 hover:bg-[#00e5bf]"
+                  onClick={() => {
+                    fetch('/project/query', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        branchName: newBranchName,
+                        query: `WITH numbered_rows AS ( SELECT ctid, ROW_NUMBER() OVER (ORDER BY (SELECT 1)) as row_num FROM playing_with_neon ) DELETE FROM playing_with_neon WHERE ctid = ( SELECT ctid FROM numbered_rows WHERE row_num = 1 )`,
+                      }),
                     })
-                }}
-              >
-                <CirclePlus size="18" />
-                <span className="ml-3">Insert A Row</span>
-              </Button>
-            </div>
-            <DataTable rows={rows_3} columns={columns_3} />
-          </div>
-        )}
-        {rows_4.length > 0 && (
-          <div id="reset-row" className="mt-24 flex w-full flex-col">
-            <div className="flex flex-row">
-              <span>Branch:&nbsp;</span>
-              <span className="font-bold">{newBranchName}</span>
-            </div>
-            <div className="flex flex-row">
-              <span>Branch Size:&nbsp;</span>
-              <span className="font-bold">{newBranchSize} GiB</span>
-            </div>
-            <div className="mt-2 flex flex-row">
-              <span>Connection String:&nbsp;</span>
-              <span className="font-bold">{destinationConnectionString}</span>
-            </div>
-            <div className="mt-2 flex flex-row">
-              <span>Table:&nbsp;</span>
-              <span className="font-bold">
-                playing_with_neon {insertBranchTime && <span className="font-light">(inserted a row in {Math.round(insertBranchTime * 100) / 100} ms)</span>}
-              </span>
-            </div>
-            <div className="mt-3 flex flex-row flex-wrap gap-2">
-              <Button
-                variant="outline"
-                className="max-w-max bg-transparent"
-                onClick={() => {
-                  fetch('/project/reset?branchName=' + newBranchName)
-                    .then((res) => res.json())
-                    .then((res) => {
-                      if (res.time) setResetBranchTime(res.time)
-                      toast({
-                        description: 'Requesting branch reset...',
+                      .then((res) => res.json())
+                      .then((res) => {
+                        if (res.time) setDropBranchTime(res.time)
+                        fetchData(newBranchName).then(() => {
+                          setTimeout(() => {
+                            document.getElementById('insert-row')?.scrollIntoView({
+                              behavior: 'smooth',
+                            })
+                          }, 200)
+                        })
                       })
-                      fetchData(newBranchName).then(() => {
-                        setTimeout(() => {
-                          document.getElementById('resetted-branch')?.scrollIntoView({
-                            behavior: 'smooth',
-                          })
-                        }, 200)
-                      })
+                  }}
+                >
+                  <CircleMinus size="18" />
+                  <span className="ml-3">Drop A Row</span>
+                </Button>
+              </div>
+              <DataTable rows={rows_2} columns={columns_2} />
+            </div>
+          )}
+          {rows_3.length > 0 && (
+            <div id="insert-row" className="flex w-full flex-col pt-24">
+              <div className="flex flex-row">
+                <span>Branch Name:&nbsp;</span>
+                <span className="font-bold">{newBranchName}</span>
+              </div>
+              <div className="mt-2 flex flex-row">
+                <span>Branch Size:&nbsp;</span>
+                <span className="font-bold">{newBranchSize} GiB</span>
+              </div>
+              <div className="mt-2 flex flex-row">
+                <span>Connection String:&nbsp;</span>
+                <span className="font-bold">{destinationConnectionString}</span>
+              </div>
+              {dropBranchTime && (
+                <div className="mt-2 flex flex-row">
+                  <span className="">
+                    Dropped a row in <span className="font-bold text-[#00e5bf]">{Math.round(dropBranchTime * 100) / 100} ms</span>
+                  </span>
+                </div>
+              )}
+              <div className="mt-3 flex flex-row flex-wrap gap-2">
+                <Button
+                  disabled={rows_4.length > 0}
+                  className="max-w-max bg-white shadow hover:scale-105 hover:bg-[#00e5bf]"
+                  onClick={() => {
+                    fetch('/project/query', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        branchName: newBranchName,
+                        query: `INSERT INTO playing_with_neon (id, name) VALUES ('${new Date().getTime()}', '${generateUsername()}')`,
+                      }),
                     })
-                }}
-              >
-                <TimerReset size="18" />
-                <span className="ml-3">Reset</span>
-              </Button>
+                      .then((res) => res.json())
+                      .then((res) => {
+                        if (res.time) setInsertBranchTime(res.time)
+                        fetchData(newBranchName).then(() => {
+                          setTimeout(() => {
+                            document.getElementById('reset-row')?.scrollIntoView({
+                              behavior: 'smooth',
+                            })
+                          }, 200)
+                        })
+                      })
+                  }}
+                >
+                  <CirclePlus size="18" />
+                  <span className="ml-3">Insert A Row</span>
+                </Button>
+              </div>
+              <DataTable rows={rows_3} columns={columns_3} />
             </div>
-            <DataTable rows={rows_4} columns={columns_4} />
-          </div>
-        )}
-        {rows_5.length > 0 && (
-          <div id="resetted-branch" className="mt-24 flex w-full flex-col">
-            <div className="flex flex-row">
-              <span>Branch:&nbsp;</span>
-              <span className="font-bold">{newBranchName}</span>
+          )}
+          {rows_4.length > 0 && (
+            <div id="reset-row" className="flex w-full flex-col pt-24">
+              <div className="flex flex-row">
+                <span>Branch Name:&nbsp;</span>
+                <span className="font-bold">{newBranchName}</span>
+              </div>
+              <div className="mt-2 flex flex-row">
+                <span>Branch Size:&nbsp;</span>
+                <span className="font-bold">{newBranchSize} GiB</span>
+              </div>
+              <div className="mt-2 flex flex-row">
+                <span>Connection String:&nbsp;</span>
+                <span className="font-bold">{destinationConnectionString}</span>
+              </div>
+              {insertBranchTime && (
+                <div className="mt-2 flex flex-row">
+                  <span className="">
+                    Inserted a row in <span className="font-bold text-[#00e5bf]">{Math.round(insertBranchTime * 100) / 100} ms</span>
+                  </span>
+                </div>
+              )}
+              <div className="mt-3 flex flex-row flex-wrap gap-2">
+                <Button
+                  disabled={rows_5.length > 0}
+                  className="max-w-max bg-white shadow hover:scale-105 hover:bg-[#00e5bf]"
+                  onClick={() => {
+                    fetch('/project/reset?branchName=' + newBranchName)
+                      .then((res) => res.json())
+                      .then((res) => {
+                        if (res.time) setResetBranchTime(res.time)
+                        toast({
+                          description: 'Requesting branch reset...',
+                        })
+                        fetchData(newBranchName).then(() => {
+                          setTimeout(() => {
+                            document.getElementById('resetted-branch')?.scrollIntoView({
+                              behavior: 'smooth',
+                            })
+                          }, 200)
+                        })
+                      })
+                  }}
+                >
+                  <TimerReset size="18" />
+                  <span className="ml-3">Reset the branch</span>
+                </Button>
+              </div>
+              <DataTable rows={rows_4} columns={columns_4} />
             </div>
-            <div className="flex flex-row">
-              <span>Branch Size:&nbsp;</span>
-              <span className="font-bold">{newBranchSize} GiB</span>
+          )}
+          {rows_5.length > 0 && (
+            <div id="resetted-branch" className="flex w-full flex-col pt-24">
+              <div className="flex flex-row">
+                <span>Branch Name:&nbsp;</span>
+                <span className="font-bold">{newBranchName}</span>
+              </div>
+              <div className="mt-2 flex flex-row">
+                <span>Branch Size:&nbsp;</span>
+                <span className="font-bold">{newBranchSize} GiB</span>
+              </div>
+              <div className="mt-2 flex flex-row">
+                <span>Connection String:&nbsp;</span>
+                <span className="font-bold">{destinationConnectionString}</span>
+              </div>
+              {resetBranchTime && (
+                <div className="mt-2 flex flex-row">
+                  <span className="">
+                    Branch reset in <span className="font-bold text-[#00e5bf]">{Math.round(resetBranchTime * 100) / 100} ms</span>
+                  </span>
+                </div>
+              )}
+              <DataTable rows={rows_5} columns={columns_5} />
             </div>
-            <div className="mt-2 flex flex-row">
-              <span>Connection String:&nbsp;</span>
-              <span className="font-bold">{destinationConnectionString}</span>
-            </div>
-            <div className="mt-2 flex flex-row">
-              <span>Table:&nbsp;</span>
-              <span className="font-bold">
-                playing_with_neon {resetBranchTime && <span className="font-light">(reset branch in {Math.round(resetBranchTime * 100) / 100} ms)</span>}
-              </span>
-            </div>
-            <DataTable rows={rows_5} columns={columns_5} />
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
