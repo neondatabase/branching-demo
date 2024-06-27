@@ -1,15 +1,31 @@
 import 'dotenv/config'
+import { parse } from 'csv-parse'
+import { createReadStream } from 'fs'
+import { slug } from 'github-slugger'
 import { neon } from '@neondatabase/serverless'
-import { generateUsername } from 'unique-username-generator'
 
 const sql = neon(process.env.DB_CONNECTION_STRING!)
 
-const prepareRows = new Array(1000).fill(0).map((_, id) => ({ id, name: generateUsername() }))
+let counter = 0
+const transactions: any[] = []
 
 async function populate() {
   await sql(`DROP TABLE playing_with_neon`)
-  await sql(`CREATE TABLE playing_with_neon (id INTEGER PRIMARY KEY, name TEXT)`)
-  await sql.transaction(prepareRows.map((item) => sql(`INSERT INTO playing_with_neon (id, name) VALUES (${item.id}, '${item.name}')`)))
+  await sql(`CREATE TABLE playing_with_neon (id INTEGER PRIMARY KEY, singer TEXT, song TEXT)`)
+  createReadStream('./spotify_millsongdata.csv')
+    .pipe(parse({ delimiter: ',', from_line: 2 }))
+    .on('data', function (row) {
+      counter += 1
+      transactions.push(sql(`INSERT INTO playing_with_neon (id, singer, song) VALUES (${counter}, '${slug(row[0])}', '${slug(row[1])}')`))
+    })
+    .on('error', function (error) {
+      console.log('[0]')
+      console.log(error.message)
+    })
+    .on('end', async function () {
+      console.log('[1]')
+      await sql.transaction(transactions)
+    })
 }
 
 populate()

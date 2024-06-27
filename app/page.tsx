@@ -267,7 +267,7 @@ function Page() {
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({
                         branchName: newBranchName,
-                        query: `WITH numbered_rows AS ( SELECT ctid, ROW_NUMBER() OVER (ORDER BY (SELECT 1)) as row_num FROM playing_with_neon ) DELETE FROM playing_with_neon WHERE ctid = ( SELECT ctid FROM numbered_rows WHERE row_num = 1000)`,
+                        query: `WITH numbered_rows AS ( SELECT ctid, ROW_NUMBER() OVER (ORDER BY (SELECT 1)) as row_num FROM playing_with_neon ) DELETE FROM playing_with_neon WHERE ctid = ( SELECT ctid FROM numbered_rows WHERE row_num = 57650)`,
                       }),
                     })
                       .then((res) => res.json())
@@ -316,7 +316,7 @@ function Page() {
               {dropBranchTime > 0 && (
                 <div className="mt-2 flex flex-row">
                   <span>
-                    Dropped the row with <span className="font-bold text-red-400">id 999</span> in{' '}
+                    Dropped the row with <span className="font-bold text-red-400">id 57650</span> in{' '}
                     <span className="font-bold text-[#00e5bf]">{Math.round(dropBranchTime * 100) / 100} ms</span>
                   </span>
                 </div>
@@ -334,7 +334,7 @@ function Page() {
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({
                         branchName: newBranchName,
-                        query: `INSERT INTO playing_with_neon (id, name) VALUES (999, '${generateUsername()}')`,
+                        query: `INSERT INTO playing_with_neon (id, singer, song) VALUES (57650, '${generateUsername()}', 'new-song-name')`,
                       }),
                     })
                       .then((res) => res.json())
@@ -383,7 +383,7 @@ function Page() {
               {insertBranchTime > 0 && (
                 <div className="mt-2 flex flex-row">
                   <span>
-                    Inserted a row with <span className="font-bold text-green-400">id 999</span> in{' '}
+                    Inserted a row with <span className="font-bold text-green-400">id 57650</span> in{' '}
                     <span className="font-bold text-[#00e5bf]">{Math.round(insertBranchTime * 100) / 100} ms</span>
                   </span>
                 </div>
