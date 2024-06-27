@@ -343,7 +343,7 @@ function Page() {
                                 element: '#resetRowButton',
                                 popover: {
                                   title: 'Stash the changes!',
-                                  description: 'Oops, we modified the data. What if you wanted to the same data again?',
+                                  description: 'Oops, we modified the data. What if you wanted to have the same data again?',
                                 },
                               })
                             }, 1000)
@@ -387,13 +387,13 @@ function Page() {
                   className="max-w-max bg-white shadow hover:scale-105 hover:bg-[#00e5bf]"
                   onClick={() => {
                     driverObj.destroy()
+                    toast({
+                      description: 'Requesting branch reset...',
+                    })
                     fetch('/project/reset?branchName=' + newBranchName)
                       .then((res) => res.json())
                       .then((res) => {
                         if (res.time) setResetBranchTime(res.time)
-                        toast({
-                          description: 'Requesting branch reset...',
-                        })
                         fetchData(newBranchName).then(() => {
                           setTimeout(() => {
                             document.getElementById('resetted-branch')?.scrollIntoView({
