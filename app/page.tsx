@@ -3,11 +3,13 @@
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useToast } from '@/components/ui/use-toast'
+import { driver } from 'driver.js'
+import 'driver.js/dist/driver.css'
 import { CircleMinus, CirclePlus, TimerReset } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
-import { generateUsername } from 'unique-username-generator'
 import Confetti from 'react-confetti'
+import { generateUsername } from 'unique-username-generator'
 
 function DataTable({ rows, columns, highlight = 0 }: { rows: any[]; columns: any[]; highlight?: number }) {
   return (
@@ -43,6 +45,7 @@ function DataTable({ rows, columns, highlight = 0 }: { rows: any[]; columns: any
 }
 
 function Page() {
+  const driverObj = driver()
   const { toast } = useToast()
   const [isVisible, setIsVisible] = useState(false)
   const [newBranchTime, setNewBranchTime] = useState(0)
@@ -132,6 +135,17 @@ function Page() {
     })
     fetchData('main')
   }, [branchName, searchParams])
+  useEffect(() => {
+    setTimeout(() => {
+      driverObj.highlight({
+        element: '#createBranchButton',
+        popover: {
+          title: 'Get started!',
+          description: 'Click here to create a copy of a Postgres database.',
+        },
+      })
+    }, 1000)
+  }, [])
   return (
     <>
       {isVisible && (
@@ -141,9 +155,9 @@ function Page() {
       )}
       <div className="mx-auto mb-24 max-w-screen-lg">
         <div className="flex flex-col">
-          <h1 className="tracking-extra-tight text-balance text-[32px] font-semibold leading-[0.9] text-white lg:text-[44px] xl:text-[56px]">Database branches in milliseconds</h1>
+          <h1 className="tracking-extra-tight text-balance text-[32px] font-semibold leading-[0.9] text-white lg:text-[44px] xl:text-[56px]">Copy database in milliseconds</h1>
           <h2 className="tracking-extra-tight mt-[18px] text-balance text-xl font-light text-[#AFB1B6] md:mt-2 lg:mt-3 lg:text-base xl:mt-4 xl:text-lg">
-            Instantly provison isolated branches of a Postgres database on&nbsp;
+            Instantly provison a copy of your Postgres database on&nbsp;
             <a className="text-white underline underline-offset-4 hover:no-underline" href="https://console.neon.tech/signup">
               Neon
             </a>
@@ -161,6 +175,7 @@ function Page() {
                 duration: 2000,
                 description: `Creating a copy of data in ${branchName} branch...`,
               })
+              driverObj.destroy()
               fetch('/project/create', { method: 'POST' })
                 .then((res) => res.json())
                 .then((res) => {
@@ -175,6 +190,15 @@ function Page() {
                       document.getElementById('provisioned')?.scrollIntoView({
                         behavior: 'smooth',
                       })
+                      setTimeout(() => {
+                        driverObj.highlight({
+                          element: '#dropRowButton',
+                          popover: {
+                            title: 'Time to make changes!',
+                            description: 'Now that you have copied your database, you can confidently make changes. Click here to drop a row.',
+                          },
+                        })
+                      }, 1000)
                     }, 200)
                   })
                 })
@@ -183,7 +207,7 @@ function Page() {
             <svg height="16" viewBox="0 0 16 16" version="1.1" width="16" className="mr-2 fill-black">
               <path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"></path>
             </svg>
-            <span>Create new branch</span>
+            <span>Create a copy</span>
           </Button>
         </div>
         <div className="flex w-full flex-row flex-wrap">
@@ -227,9 +251,11 @@ function Page() {
               )}
               <div className="mt-3 flex flex-row flex-wrap gap-2">
                 <Button
+                  id="dropRowButton"
                   disabled={rows_3.length > 0}
                   className="max-w-max bg-white shadow hover:scale-105 hover:bg-[#00e5bf]"
                   onClick={() => {
+                    driverObj.destroy()
                     fetch('/project/query', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
@@ -246,6 +272,15 @@ function Page() {
                             document.getElementById('insert-row')?.scrollIntoView({
                               behavior: 'smooth',
                             })
+                            setTimeout(() => {
+                              driverObj.highlight({
+                                element: '#insertRowButton',
+                                popover: {
+                                  title: 'Time to make more changes!',
+                                  description: "Let's make more changes. Click here to insert a row.",
+                                },
+                              })
+                            }, 1000)
                           }, 200)
                         })
                       })
@@ -282,9 +317,11 @@ function Page() {
               )}
               <div className="mt-3 flex flex-row flex-wrap gap-2">
                 <Button
+                  id="insertRowButton"
                   disabled={rows_4.length > 0}
                   className="max-w-max bg-white shadow hover:scale-105 hover:bg-[#00e5bf]"
                   onClick={() => {
+                    driverObj.destroy()
                     fetch('/project/query', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
@@ -301,6 +338,15 @@ function Page() {
                             document.getElementById('reset-row')?.scrollIntoView({
                               behavior: 'smooth',
                             })
+                            setTimeout(() => {
+                              driverObj.highlight({
+                                element: '#resetRowButton',
+                                popover: {
+                                  title: 'Stash the changes!',
+                                  description: 'Oops, we modified the data. What if you wanted to the same data again?',
+                                },
+                              })
+                            }, 1000)
                           }, 200)
                         })
                       })
@@ -336,9 +382,11 @@ function Page() {
               )}
               <div className="mt-3 flex flex-row flex-wrap gap-2">
                 <Button
+                  id="resetRowButton"
                   disabled={rows_5.length > 0}
                   className="max-w-max bg-white shadow hover:scale-105 hover:bg-[#00e5bf]"
                   onClick={() => {
+                    driverObj.destroy()
                     fetch('/project/reset?branchName=' + newBranchName)
                       .then((res) => res.json())
                       .then((res) => {
