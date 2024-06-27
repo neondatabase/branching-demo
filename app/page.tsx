@@ -376,7 +376,8 @@ function Page() {
               {insertBranchTime > 0 && (
                 <div className="mt-2 flex flex-row">
                   <span>
-                    Inserted a row in <span className="font-bold text-[#00e5bf]">{Math.round(insertBranchTime * 100) / 100} ms</span>
+                    Inserted a row with <span className="font-bold text-green-400">id 999</span> in{' '}
+                    <span className="font-bold text-[#00e5bf]">{Math.round(insertBranchTime * 100) / 100} ms</span>
                   </span>
                 </div>
               )}
