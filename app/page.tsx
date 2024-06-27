@@ -47,6 +47,10 @@ function DataTable({ rows, columns, highlight = 0 }: { rows: any[]; columns: any
 function Page() {
   const driverObj = driver()
   const { toast } = useToast()
+  const [button_1, setButton1] = useState(false)
+  const [button_2, setButton2] = useState(false)
+  const [button_3, setButton3] = useState(false)
+  const [button_4, setButton4] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
   const [newBranchTime, setNewBranchTime] = useState(0)
   const [newBranchSize, setNewBranchSize] = useState(0)
@@ -168,9 +172,10 @@ function Page() {
           <span></span>
           <Button
             id="createBranchButton"
-            className="max-w-max bg-white shadow hover:scale-105 hover:bg-[#00e5bf]"
-            disabled={newBranchName.length > 0}
+            className="ml-1 max-w-max bg-white shadow hover:bg-[#00e5bf]"
+            disabled={button_1}
             onClick={() => {
+              setButton1(true)
               toast({
                 duration: 2000,
                 description: `Creating a copy of data in ${branchName} branch...`,
@@ -252,9 +257,10 @@ function Page() {
               <div className="mt-3 flex flex-row flex-wrap gap-2">
                 <Button
                   id="dropRowButton"
-                  disabled={rows_3.length > 0}
-                  className="max-w-max bg-white shadow hover:scale-105 hover:bg-[#00e5bf]"
+                  disabled={button_2}
+                  className="ml-1 max-w-max bg-white shadow hover:bg-[#00e5bf]"
                   onClick={() => {
+                    setButton2(true)
                     driverObj.destroy()
                     fetch('/project/query', {
                       method: 'POST',
@@ -318,9 +324,10 @@ function Page() {
               <div className="mt-3 flex flex-row flex-wrap gap-2">
                 <Button
                   id="insertRowButton"
-                  disabled={rows_4.length > 0}
-                  className="max-w-max bg-white shadow hover:scale-105 hover:bg-[#00e5bf]"
+                  disabled={button_3}
+                  className="ml-1 max-w-max bg-white shadow hover:bg-[#00e5bf]"
                   onClick={() => {
+                    setButton3(true)
                     driverObj.destroy()
                     fetch('/project/query', {
                       method: 'POST',
@@ -376,7 +383,7 @@ function Page() {
               {insertBranchTime > 0 && (
                 <div className="mt-2 flex flex-row">
                   <span>
-                    Inserted a row with <span className="text-green- font-bold">id 999</span> in{' '}
+                    Inserted a row with <span className="font-bold text-green-400">id 999</span> in{' '}
                     <span className="font-bold text-[#00e5bf]">{Math.round(insertBranchTime * 100) / 100} ms</span>
                   </span>
                 </div>
@@ -384,9 +391,10 @@ function Page() {
               <div className="mt-3 flex flex-row flex-wrap gap-2">
                 <Button
                   id="resetRowButton"
-                  disabled={rows_5.length > 0}
-                  className="max-w-max bg-white shadow hover:scale-105 hover:bg-[#00e5bf]"
+                  disabled={button_4}
+                  className="ml-1 max-w-max bg-white shadow hover:bg-[#00e5bf]"
                   onClick={() => {
+                    setButton4(true)
                     driverObj.destroy()
                     toast({
                       description: 'Requesting branch reset...',
