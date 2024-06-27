@@ -349,7 +349,7 @@ function Page() {
                               driverObj.highlight({
                                 element: '#resetRowButton',
                                 popover: {
-                                  title: 'Stash the changes!',
+                                  title: 'Reset the changes!',
                                   description: 'Oops, we modified the data. What if you wanted to have the same data again?',
                                 },
                               })
