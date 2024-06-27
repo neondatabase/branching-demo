@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
   const sql = neon(`${process.env.DB_CONNECTION_STRING}`)
   try {
     if (branchName === 'main') {
-      const rows = await sql`SELECT * FROM playing_with_neon LIMIT 10`
+      const rows = await sql`SELECT * FROM playing_with_neon ORDER BY id DESC LIMIT 10`
       return NextResponse.json({
         sanitizedConnectionString: maskConnectionString(`${process.env.DB_CONNECTION_STRING}`),
         rows,
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     const parent_rows = await sql`SELECT * FROM branches WHERE branch_name = ${branchName} LIMIT 1`
     const connectionString = parent_rows[0]['connection_string']
     const sql_1 = neon(connectionString)
-    const rows = await sql_1`SELECT * from playing_with_neon LIMIT 10`
+    const rows = await sql_1`SELECT * FROM playing_with_neon ORDER BY id DESC LIMIT 10`
     return NextResponse.json({
       sanitizedConnectionString: maskConnectionString(connectionString),
       rows,

@@ -9,7 +9,7 @@ import { Suspense, useEffect, useState } from 'react'
 import { generateUsername } from 'unique-username-generator'
 import Confetti from 'react-confetti'
 
-function DataTable({ rows, columns }: { rows: any[]; columns: any[] }) {
+function DataTable({ rows, columns, highlight = 0 }: { rows: any[]; columns: any[]; highlight: number }) {
   return (
     <>
       <div className="mt-8 flex flex-row">
@@ -29,7 +29,7 @@ function DataTable({ rows, columns }: { rows: any[]; columns: any[] }) {
         {rows && (
           <TableBody>
             {rows.map((i, idx) => (
-              <TableRow key={idx}>
+              <TableRow className={highlight - 1 === idx ? 'bg-green-800 text-white' : ''} key={idx}>
                 {Object.values(i).map((j: any, idx2) => (
                   <TableCell key={idx2}>{j}</TableCell>
                 ))}
@@ -207,7 +207,7 @@ function Page() {
           {rows_2.length > 0 && (
             <div id="provisioned" className="flex w-full flex-col pt-24">
               <div className="flex flex-row">
-                <span>Branch:&nbsp;</span>
+                <span>Branch Name:&nbsp;</span>
                 <span className="font-bold">{newBranchName}</span>
               </div>
               <div className="mt-2 flex flex-row">
@@ -218,9 +218,9 @@ function Page() {
                 <span>Connection String:&nbsp;</span>
                 <span className="font-bold">{destinationConnectionString}</span>
               </div>
-              {newBranchTime && (
+              {newBranchTime > 0 && (
                 <div className="mt-2 flex flex-row">
-                  <span className="">
+                  <span>
                     Created a new branch in <span className="font-bold text-[#00e5bf]">{Math.round(newBranchTime * 100) / 100} ms</span>
                   </span>
                 </div>
@@ -235,7 +235,7 @@ function Page() {
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({
                         branchName: newBranchName,
-                        query: `WITH numbered_rows AS ( SELECT ctid, ROW_NUMBER() OVER (ORDER BY (SELECT 1)) as row_num FROM playing_with_neon ) DELETE FROM playing_with_neon WHERE ctid = ( SELECT ctid FROM numbered_rows WHERE row_num = 1 )`,
+                        query: `WITH numbered_rows AS ( SELECT ctid, ROW_NUMBER() OVER (ORDER BY (SELECT 1)) as row_num FROM playing_with_neon ) DELETE FROM playing_with_neon WHERE ctid = ( SELECT ctid FROM numbered_rows WHERE row_num = 1000)`,
                       }),
                     })
                       .then((res) => res.json())
@@ -272,10 +272,11 @@ function Page() {
                 <span>Connection String:&nbsp;</span>
                 <span className="font-bold">{destinationConnectionString}</span>
               </div>
-              {dropBranchTime && (
+              {dropBranchTime > 0 && (
                 <div className="mt-2 flex flex-row">
-                  <span className="">
-                    Dropped a row in <span className="font-bold text-[#00e5bf]">{Math.round(dropBranchTime * 100) / 100} ms</span>
+                  <span>
+                    Dropped the row with <span className="font-bold text-red-400">id 999</span> in{' '}
+                    <span className="font-bold text-[#00e5bf]">{Math.round(dropBranchTime * 100) / 100} ms</span>
                   </span>
                 </div>
               )}
@@ -289,7 +290,7 @@ function Page() {
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({
                         branchName: newBranchName,
-                        query: `INSERT INTO playing_with_neon (id, name) VALUES ('${new Date().getTime()}', '${generateUsername()}')`,
+                        query: `INSERT INTO playing_with_neon (id, name) VALUES (999, '${generateUsername()}')`,
                       }),
                     })
                       .then((res) => res.json())
@@ -326,9 +327,9 @@ function Page() {
                 <span>Connection String:&nbsp;</span>
                 <span className="font-bold">{destinationConnectionString}</span>
               </div>
-              {insertBranchTime && (
+              {insertBranchTime > 0 && (
                 <div className="mt-2 flex flex-row">
-                  <span className="">
+                  <span>
                     Inserted a row in <span className="font-bold text-[#00e5bf]">{Math.round(insertBranchTime * 100) / 100} ms</span>
                   </span>
                 </div>
@@ -359,7 +360,7 @@ function Page() {
                   <span className="ml-3">Reset the branch</span>
                 </Button>
               </div>
-              <DataTable rows={rows_4} columns={columns_4} />
+              <DataTable highlight={1} rows={rows_4} columns={columns_4} />
             </div>
           )}
           {rows_5.length > 0 && (
@@ -376,9 +377,9 @@ function Page() {
                 <span>Connection String:&nbsp;</span>
                 <span className="font-bold">{destinationConnectionString}</span>
               </div>
-              {resetBranchTime && (
+              {resetBranchTime > 0 && (
                 <div className="mt-2 flex flex-row">
-                  <span className="">
+                  <span>
                     Branch reset in <span className="font-bold text-[#00e5bf]">{Math.round(resetBranchTime * 100) / 100} ms</span>
                   </span>
                 </div>
