@@ -4,13 +4,22 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Fragment, ReactElement, useState } from 'react'
 
+interface Stage {
+  icon: string
+  branched: boolean
+  next?: boolean
+  prev?: boolean
+  rightView?: ReactElement
+  leftView?: ReactElement
+}
+
 export default function Onboarding() {
   const [stage, setStage] = useState(0)
   const [nextOn, setNextOn] = useState(true)
   const [prevOn, setPrevOn] = useState(true)
-  const stages: { icon: string; branched: boolean; next?: boolean; prev?: boolean; rightView?: ReactElement; leftView?: ReactElement }[] = [
+  const stages: Stage[] = [
     {
-      icon: 'https://cdn.svgporn.com/logos/chartjs.svg',
+      icon: 'https://www.svgrepo.com/show/526106/play.svg',
       branched: false,
       leftView: (
         <div className="contents">
@@ -106,7 +115,7 @@ export default function Onboarding() {
               )}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="w-[30px]" src={stages[stage].icon} alt="ChartJS" />
+              <img className="w-[30px]" src={stages[_].icon} alt="ChartJS" />
             </div>
           </Fragment>
         ))}
