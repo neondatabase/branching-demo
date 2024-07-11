@@ -63,8 +63,15 @@ export default function Onboarding() {
           <Fragment key={_}>
             <div className="relative flex flex-row">
               {stages[_].branched && <div className={cn('branching-line', _ === stage ? 'bg-white' : 'bg-white/10')} />}
-              <div className={cn('horizontal-line', _ === stage ? 'bg-white' : 'bg-white/10', stages[_].branched ? '!w-[30px]' : '!w-[60px]')}></div>
-              {/* {!stages[_].branched && <div className="horizontal-line !w-[30px] bg-white" />} */}
+              {_ - 1 >= 0 && stages[_ - 1].branched && <div className={cn('branching-line-begin', _ === stage ? 'bg-white' : 'bg-white/10')} />}
+              <div
+                className={cn(
+                  'horizontal-line',
+                  _ === stage ? 'bg-white' : 'bg-white/10',
+                  stages[_].branched || (_ - 1 >= 0 && stages[_ - 1].branched) ? '!w-[30px]' : '!w-[60px]',
+                  _ - 1 >= 0 && stages[_ - 1].branched && 'ml-[30px]',
+                )}
+              ></div>
             </div>
             <div
               className={cn(

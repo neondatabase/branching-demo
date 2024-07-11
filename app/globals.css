@@ -119,10 +119,18 @@ body {
 
 .branching-line {
   position: absolute;
-  top: 50%;
   left: 50%;
   width: 30px;
   height: 2px;
   transform-origin: left;
   transform: rotate(45deg);
+}
+
+.branching-line-begin {
+  position: absolute;
+  right: 50%;
+  width: 30px;
+  height: 2px;
+  transform-origin: right;
+  transform: rotate(-45deg);
 }
