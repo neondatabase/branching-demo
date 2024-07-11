@@ -2,55 +2,79 @@
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { Fragment, useState } from 'react'
-
-const stages = [
-  {
-    icon: 'https://cdn.svgporn.com/logos/chartjs.svg',
-    branched: false,
-    h1: "Test's Branching Feature",
-    h2: 'Instantly branch your production database to create a staging environment for testing out schema changes.',
-    next: true,
-    prev: false,
-  },
-  {
-    icon: 'https://cdn.svgporn.com/logos/chartjs.svg',
-    branched: true,
-    h1: "Test's Branching Feature",
-    h2: 'Instantly branch your production database to create a staging environment for testing out schema changes.',
-    next: true,
-    prev: true,
-  },
-  {
-    icon: 'https://cdn.svgporn.com/logos/chartjs.svg',
-    branched: false,
-    h1: "Test's Branching Feature",
-    h2: 'Instantly branch your production database to create a staging environment for testing out schema changes.',
-    next: true,
-    prev: true,
-  },
-  {
-    icon: 'https://cdn.svgporn.com/logos/chartjs.svg',
-    branched: false,
-    h1: "Test's Branching Feature",
-    h2: 'Instantly branch your production database to create a staging environment for testing out schema changes.',
-    next: true,
-    prev: true,
-  },
-  {
-    icon: 'https://cdn.svgporn.com/logos/chartjs.svg',
-    branched: false,
-    h1: "Test's Branching Feature",
-    h2: 'Instantly branch your production database to create a staging environment for testing out schema changes.',
-    next: false,
-    prev: true,
-  },
-]
+import { Fragment, ReactElement, useState } from 'react'
 
 export default function Onboarding() {
   const [stage, setStage] = useState(0)
   const [nextOn, setNextOn] = useState(true)
   const [prevOn, setPrevOn] = useState(true)
+  const stages: { icon: string; branched: boolean; next?: boolean; prev?: boolean; rightView?: ReactElement; leftView?: ReactElement }[] = [
+    {
+      icon: 'https://cdn.svgporn.com/logos/chartjs.svg',
+      branched: false,
+      leftView: (
+        <div className="contents">
+          <span className="text-xl font-medium">Test's Branching Feature</span>
+          <span className="mt-3 text-gray-400">Instantly branch your production database to create a staging environment for testing out schema changes.</span>
+        </div>
+      ),
+      rightView: <span>table data</span>,
+      next: true,
+      prev: false,
+    },
+    {
+      icon: 'https://cdn.svgporn.com/logos/chartjs.svg',
+      branched: true,
+      leftView: (
+        <div className="contents">
+          <span className="text-xl font-medium">Test's Branching Feature</span>
+          <span className="mt-3 text-gray-400">Instantly branch your production database to create a staging environment for testing out schema changes.</span>
+        </div>
+      ),
+      rightView: <span>table data</span>,
+      next: true,
+      prev: true,
+    },
+    {
+      icon: 'https://cdn.svgporn.com/logos/chartjs.svg',
+      branched: false,
+      leftView: (
+        <div className="contents">
+          <span className="text-xl font-medium">Test's Branching Feature</span>
+          <span className="mt-3 text-gray-400">Instantly branch your production database to create a staging environment for testing out schema changes.</span>
+        </div>
+      ),
+      rightView: <span>table data</span>,
+      next: true,
+      prev: true,
+    },
+    {
+      icon: 'https://cdn.svgporn.com/logos/chartjs.svg',
+      branched: false,
+      leftView: (
+        <div className="contents">
+          <span className="text-xl font-medium">Test's Branching Feature</span>
+          <span className="mt-3 text-gray-400">Instantly branch your production database to create a staging environment for testing out schema changes.</span>
+        </div>
+      ),
+      rightView: <span>table data</span>,
+      next: true,
+      prev: true,
+    },
+    {
+      icon: 'https://cdn.svgporn.com/logos/chartjs.svg',
+      branched: false,
+      leftView: (
+        <div className="contents">
+          <span className="text-xl font-medium">Test's Branching Feature</span>
+          <span className="mt-3 text-gray-400">Instantly branch your production database to create a staging environment for testing out schema changes.</span>
+        </div>
+      ),
+      rightView: <span>table data</span>,
+      next: false,
+      prev: true,
+    },
+  ]
   const [stageLength, setStageLength] = useState(stages.length)
   return (
     <div className="flex flex-col items-center">
@@ -87,14 +111,9 @@ export default function Onboarding() {
           </Fragment>
         ))}
       </div>
-      <div className="my-24 grid w-full max-w-4xl grid-cols-1 gap-8 md:grid-cols-2">
-        <div className="flex w-full flex-col border border-white/5 p-4">
-          <span className="text-xl font-medium">{stages[stage].h1}</span>
-          <span className="mt-3 text-gray-400">{stages[stage].h2}</span>
-        </div>
-        <div className="flex w-full flex-col border border-white/5 p-4">
-          <span>table data </span>
-        </div>
+      <div className={cn('my-24 grid w-full max-w-4xl grid-cols-1 gap-8', stages[stage].rightView && 'md:grid-cols-2')}>
+        {stages[stage].leftView && <div className="flex w-full flex-col border border-white/5 p-4">{stages[stage].leftView}</div>}
+        {stages[stage].rightView && <div className="flex w-full flex-col border border-white/5 p-4">{stages[stage].rightView}</div>}
       </div>
       <div className="mt-12 flex flex-row items-center gap-x-3">
         <Button
