@@ -1,9 +1,12 @@
 'use client'
 
+import { cn } from '@/lib/utils'
 import { useState } from 'react'
 
 export default function Onboarding() {
   const [stage, setStage] = useState(0)
+  const [nextOn, setNextOn] = useState(true)
+  const [prevOn, setPrevOn] = useState(true)
   const [stageLength, setStageLength] = useState(6)
   return (
     <div className="flex flex-col items-center">
@@ -20,8 +23,10 @@ export default function Onboarding() {
           </div>
         ))}
       </div>
-      <div className="flex flex-row items-center gap-x-3">
+      <div className="mt-12 flex flex-row items-center gap-x-3">
         <button
+          disabled={!prevOn}
+          className={cn(!prevOn && 'opacity-10')}
           onClick={() => {
             setStage((stage) => {
               const tmp = stage - 1
@@ -33,6 +38,8 @@ export default function Onboarding() {
           Prev
         </button>
         <button
+          disabled={!nextOn}
+          className={cn(!nextOn && 'opacity-10')}
           onClick={() => {
             setStage((stage) => {
               const tmp = (stage + 1) % stageLength
