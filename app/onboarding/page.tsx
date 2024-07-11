@@ -1,5 +1,6 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Fragment, useState } from 'react'
 
@@ -96,9 +97,10 @@ export default function Onboarding() {
         </div>
       </div>
       <div className="mt-12 flex flex-row items-center gap-x-3">
-        <button
+        <Button
+          variant="outline"
           disabled={!prevOn || (stages[stage].hasOwnProperty('prev') && stages[stage].prev === false)}
-          className={cn((!prevOn || (stages[stage].hasOwnProperty('prev') && stages[stage].prev === false)) && 'hidden')}
+          className={cn((!prevOn || (stages[stage].hasOwnProperty('prev') && stages[stage].prev === false)) && 'hidden', 'bg-transparent')}
           onClick={() => {
             setStage((stage) => {
               const tmp = stage - 1
@@ -107,11 +109,12 @@ export default function Onboarding() {
             })
           }}
         >
-          Prev
-        </button>
-        <button
+          &larr; Prev
+        </Button>
+        <Button
+          variant="outline"
           disabled={!nextOn || (stages[stage].hasOwnProperty('next') && stages[stage].next === false)}
-          className={cn((!nextOn || (stages[stage].hasOwnProperty('next') && stages[stage].next === false)) && 'hidden')}
+          className={cn((!nextOn || (stages[stage].hasOwnProperty('next') && stages[stage].next === false)) && 'hidden', 'bg-transparent')}
           onClick={() => {
             setStage((stage) => {
               const tmp = (stage + 1) % stageLength
@@ -119,8 +122,8 @@ export default function Onboarding() {
             })
           }}
         >
-          Next
-        </button>
+          Next &rarr;
+        </Button>
       </div>
     </div>
   )
