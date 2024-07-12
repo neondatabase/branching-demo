@@ -286,17 +286,22 @@ export default function Onboarding() {
           <Button
             variant="outline"
             onClick={() => {
-              setStage(2)
+              setStage(0)
+              setRows2([])
               setRows3([])
               setRows4([])
               setRows5([])
+              setColumns2([])
               setColumns3([])
               setColumns4([])
               setColumns5([])
+              setNewBranchTime(0)
+              setNewBranchSize(0)
+              setNewBranchName('')
             }}
             className="mt-8 max-w-max bg-transparent text-gray-400"
           >
-            <span className="ml-3">I want to make changes &rarr;</span>
+            <span className="ml-3">Restart the demo &rarr;</span>
           </Button>
         </div>
       ),
