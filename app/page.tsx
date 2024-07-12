@@ -8,6 +8,7 @@ import { CircleMinus, CirclePlus, TimerReset } from 'lucide-react'
 import { Fragment, ReactElement, useEffect, useState } from 'react'
 import { generateUsername } from 'unique-username-generator'
 import Confetti from 'react-confetti'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface Stage {
   icon: string
@@ -431,15 +432,52 @@ export default function Onboarding() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="w-[30px] translate-x-0.5" src={stages[_].icon} alt="ChartJS" />
               {stages[stage].label && (
-                <span className={cn('absolute -bottom-8 z-20 min-w-max max-w-max', _ === stage ? 'text-white' : 'text-white/10 opacity-10')}>{stages[stage].label}</span>
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={stage}
+                    className={cn('absolute -bottom-8 z-20 min-w-max max-w-max', _ === stage ? 'text-white' : 'text-white/10 opacity-10')}
+                    exit={{ opacity: 0 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    {stages[stage].label}
+                  </motion.span>
+                </AnimatePresence>
               )}
             </div>
           </Fragment>
         ))}
       </div>
       <div className={cn('my-24 grid w-full max-w-4xl grid-cols-1 gap-8', stages[stage].rightView && 'md:grid-cols-2')}>
-        {stages[stage].leftView && <div className="flex w-full flex-col p-4">{stages[stage].leftView}</div>}
-        {stages[stage].rightView && <div className="flex w-full flex-col p-4">{stages[stage].rightView}</div>}
+        {stages[stage].leftView && (
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={stage}
+              exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className={cn('flex w-full flex-col p-4')}
+            >
+              {stages[stage].leftView}
+            </motion.span>
+          </AnimatePresence>
+        )}
+        {stages[stage].rightView && (
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={stage}
+              exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className={cn('flex w-full flex-col p-4')}
+            >
+              {stages[stage].rightView}
+            </motion.span>
+          </AnimatePresence>
+        )}
       </div>
       <div className="mt-12 flex flex-row items-center gap-x-3">
         <Button
