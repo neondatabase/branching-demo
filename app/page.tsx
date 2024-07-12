@@ -244,12 +244,17 @@ export default function Onboarding() {
           <Button
             onClick={() => {
               toast({
+                duration: 1000,
                 description: 'Requesting database restore...',
               })
               fetch('/project/reset?branchName=' + newBranchName)
                 .then((res) => res.json())
                 .then((res) => {
                   if (res.time) setResetBranchTime(res.time)
+                  toast({
+                    duration: 1000,
+                    description: 'Fetching data of the restored database...',
+                  })
                   fetchData(newBranchName)
                 })
               setStage((stage) => stage + 1)
