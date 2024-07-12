@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { CircleMinus, CirclePlus, TimerReset } from 'lucide-react'
 import { Fragment, ReactElement, useEffect, useState } from 'react'
 import { generateUsername } from 'unique-username-generator'
+import Confetti from 'react-confetti'
 
 interface Stage {
   icon: string
@@ -54,6 +55,7 @@ export default function Onboarding() {
   const [stage, setStage] = useState(0)
   const [nextOn, setNextOn] = useState(true)
   const [prevOn, setPrevOn] = useState(true)
+  const [isVisible, setIsVisible] = useState(false)
   //
   const { toast } = useToast()
   const [newBranchTime, setNewBranchTime] = useState(0)
@@ -85,12 +87,12 @@ export default function Onboarding() {
         <div className="contents">
           <h1 className="text-3xl font-semibold text-white">Copy your database in milliseconds</h1>
           <span className="mt-3 font-light text-gray-400">
-            In this demo, you will create a copy of your database, make changes in it, and restore it to the original copy in few clicks. Behind the scenes, you are leveraging the
-            instant&nbsp;
+            In this demo, you will create a copy of your database, make changes to it, and restore it to the original state in milliseconds. Behind the scenes, you are
+            leveraging&nbsp;
             <a className="text-white/75 hover:underline hover:underline-offset-4" href="https://console.neon.tech/signup">
               Neon
-            </a>{' '}
-            branching.
+            </a>
+            {"'"}s instant branching.
           </span>
           <Button
             onClick={() => {
@@ -111,11 +113,11 @@ export default function Onboarding() {
         <div className="contents">
           <span className="text-xl font-medium">Create your own Postgres database</span>
           <span className="mt-3 text-gray-400">
-            A Postgres database can be created{' '}
+            A Neon database is created in{' '}
             <a className="border-b text-white" target="_blank" href="https://neon.tech/demos/instant-postgres">
-              under seconds
-            </a>{' '}
-            with Neon. For now, we have prepared a database for you to copy. Currently, the size of this database is of about {mainBranchSize > 0 ? mainBranchSize : '...'} GiB.
+              under a second
+            </a>
+            . For now, we have prepared a database for you to copy. Currently, the size of this database is about {mainBranchSize > 0 ? mainBranchSize : '...'} GiB.
           </span>
           <Button
             onClick={() => {
@@ -155,8 +157,8 @@ export default function Onboarding() {
         <div className="contents">
           <span className="text-xl font-medium">I want to make changes in the copy</span>
           <span className="mt-3 text-gray-400">
-            In about {newBranchTime > 0 ? Math.round(newBranchTime * 100) / 100 : '...'}ms, you created a copy of your database. Now, let{"'"}s make some changes to make sure that
-            it is an isolated copy of your original database.
+            In about {newBranchTime > 0 ? Math.round(newBranchTime * 100) / 100 : '...'}ms, your copy was created. Now, let{"'"}s make a change to make sure that it is an isolated
+            copy of your original database.
           </span>
           <Button
             variant="destructive"
@@ -197,8 +199,8 @@ export default function Onboarding() {
         <div className="contents">
           <span className="text-xl font-medium">I want to make more changes in the copy</span>
           <span className="mt-3 text-gray-400">
-            In about {dropBranchTime > 0 ? Math.round(dropBranchTime * 100) / 100 : '...'}ms, you dropped a row in your copied database. Now, let{"'"}s make some more changes to
-            make sure that your data is quite different from original database.
+            In about {dropBranchTime > 0 ? Math.round(dropBranchTime * 100) / 100 : '...'}ms, you dropped a row in your copied database. Now, let{"'"}s make one more change to make
+            sure that your data is quite different from the original database.
           </span>
           <Button
             onClick={() => {
@@ -238,8 +240,8 @@ export default function Onboarding() {
         <div className="contents">
           <span className="text-xl font-medium">But... I messed it up!</span>
           <span className="mt-3 text-gray-400">
-            In about {insertBranchTime > 0 ? Math.round(insertBranchTime * 100) / 100 : '...'}ms, you inserted a row in your copied database. But what if now you want to go back to
-            the original state of the copied database?
+            In about {insertBranchTime > 0 ? Math.round(insertBranchTime * 100) / 100 : '...'}ms, you inserted a row in your copied database. But what if you wanted to restore to
+            the initial state?
           </span>
           <Button
             onClick={() => {
@@ -255,7 +257,12 @@ export default function Onboarding() {
                     duration: 1000,
                     description: 'Fetching data of the restored database...',
                   })
-                  fetchData(newBranchName)
+                  fetchData(newBranchName).then(() => {
+                    setIsVisible(true)
+                    setTimeout(() => {
+                      setIsVisible(false)
+                    }, 5000)
+                  })
                 })
               setStage((stage) => stage + 1)
             }}
@@ -382,6 +389,11 @@ export default function Onboarding() {
   }, [stage])
   return (
     <div className="flex flex-col items-center">
+      {isVisible && (
+        <div className="fixed left-0 top-0 h-screen w-screen">
+          <Confetti />
+        </div>
+      )}
       <div className="flex flex-row items-center gap-x-3">
         {new Array(stageLength).fill(0).map((i, _) => (
           <div key={_} className={cn('rounded-full', stage !== _ ? 'size-[6px] bg-white/50' : 'size-[8px] bg-white')} />
