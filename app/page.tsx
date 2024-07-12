@@ -3,22 +3,28 @@
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useToast } from '@/components/ui/use-toast'
-import { driver } from 'driver.js'
-import 'driver.js/dist/driver.css'
+import { cn } from '@/lib/utils'
 import { CircleMinus, CirclePlus, TimerReset } from 'lucide-react'
-import { useSearchParams } from 'next/navigation'
-import { Suspense, useEffect, useState } from 'react'
-import Confetti from 'react-confetti'
+import { Fragment, ReactElement, useEffect, useState } from 'react'
 import { generateUsername } from 'unique-username-generator'
 
-function DataTable({ rows, columns, highlight = 0 }: { rows: any[]; columns: any[]; highlight?: number }) {
+interface Stage {
+  icon: string
+  branched: boolean
+  next?: boolean
+  prev?: boolean
+  rightView?: ReactElement
+  leftView?: ReactElement
+  label?: string
+}
+
+function DataTable({ rows, columns, highlight = 0, databaseName = 'main' }: { rows: any[]; columns: any[]; highlight?: number; databaseName?: string }) {
   return (
     <>
-      <div className="mt-8 flex flex-row">
-        <span>Table:&nbsp;</span>
-        <span>playing_with_neon</span>
-      </div>
-      <Table className="mt-2 border-t">
+      <span className="text-md text-white/30">
+        Database: <span className="text-white/70">{databaseName}</span>, Table: <span className="text-white/70">playing_with_neon</span>
+      </span>
+      <Table className="mt-3 border-t">
         {columns && (
           <TableHeader>
             <TableRow>
@@ -44,14 +50,12 @@ function DataTable({ rows, columns, highlight = 0 }: { rows: any[]; columns: any
   )
 }
 
-function Page() {
-  const driverObj = driver()
+export default function Onboarding() {
+  const [stage, setStage] = useState(0)
+  const [nextOn, setNextOn] = useState(true)
+  const [prevOn, setPrevOn] = useState(true)
+  //
   const { toast } = useToast()
-  const [button_1, setButton1] = useState(false)
-  const [button_2, setButton2] = useState(false)
-  const [button_3, setButton3] = useState(false)
-  const [button_4, setButton4] = useState(false)
-  const [isVisible, setIsVisible] = useState(false)
   const [newBranchTime, setNewBranchTime] = useState(0)
   const [newBranchSize, setNewBranchSize] = useState(0)
   const [newBranchName, setNewBranchName] = useState('')
@@ -61,7 +65,6 @@ function Page() {
   const [insertBranchTime, setInsertBranchTime] = useState(0)
   const [sourceConnectionString, setSourceConnectionString] = useState('')
   const [destinationConnectionString, setDestinationConnectionString] = useState('')
-  const searchParams = useSearchParams()
   const [rows, setRows] = useState([])
   const [columns, setColumns] = useState<string[]>([])
   const [rows_2, setRows2] = useState([])
@@ -72,7 +75,226 @@ function Page() {
   const [columns_4, setColumns4] = useState<string[]>([])
   const [rows_5, setRows5] = useState([])
   const [columns_5, setColumns5] = useState<string[]>([])
-  const branchName = searchParams.get('branchName') || 'main'
+  //
+  const stages: Stage[] = [
+    {
+      label: 'Welcome',
+      icon: 'https://www.svgrepo.com/show/521608/document.svg',
+      branched: false,
+      leftView: (
+        <div className="contents">
+          <h1 className="text-3xl font-semibold text-white">Copy database in milliseconds</h1>
+          <span className="mt-3 font-light text-gray-400">
+            In this demo, you will create a copy of your database, make changes in it, and restore it to the original copy in few clicks. Behind the scenes, you are leveraging the
+            instant&nbsp;
+            <a className="text-white/75 hover:underline hover:underline-offset-4" href="https://console.neon.tech/signup">
+              Neon
+            </a>{' '}
+            branching.
+          </span>
+          <Button
+            onClick={() => {
+              setStage((stage) => stage + 1)
+            }}
+            className="mt-8 max-w-max bg-[#00e599]"
+          >
+            {"Let's"} begin &rarr;
+          </Button>
+        </div>
+      ),
+    },
+    {
+      label: 'Origin database',
+      icon: 'https://www.svgrepo.com/show/471315/database-02.svg',
+      branched: false,
+      leftView: (
+        <div className="contents">
+          <span className="text-xl font-medium">Create your own Postgres database</span>
+          <span className="mt-3 text-gray-400">
+            A Postgres database can be created{' '}
+            <a className="border-b text-white" target="_blank" href="https://neon.tech/demos/instant-postgres">
+              under seconds
+            </a>{' '}
+            with Neon. For now, we have prepared a database for you to copy. Currently, the size of this database is of about {mainBranchSize > 0 ? mainBranchSize : '...'} GiB.
+          </span>
+          <Button
+            onClick={() => {
+              toast({
+                duration: 1000,
+                description: `Creating a copy of data in main database...`,
+              })
+              fetch('/project/create', { method: 'POST' })
+                .then((res) => res.json())
+                .then((res) => {
+                  toast({
+                    duration: 1000,
+                    description: `Fetching data in the copied database...`,
+                  })
+                  setNewBranchName(res.new_branch_id)
+                  if (res.time) setNewBranchTime(res.time)
+                  fetchData(res.new_branch_id)
+                })
+              setStage((stage) => stage + 1)
+            }}
+            className="mt-8 max-w-max"
+          >
+            <svg height="16" viewBox="0 0 16 16" version="1.1" width="16" className="mr-2 fill-black">
+              <path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"></path>
+            </svg>
+            Create a copy &rarr;
+          </Button>
+        </div>
+      ),
+      rightView: <DataTable rows={rows} columns={columns} />,
+    },
+    {
+      label: 'Copied database',
+      icon: 'https://www.svgrepo.com/show/445570/branch.svg',
+      branched: true,
+      leftView: (
+        <div className="contents">
+          <span className="text-xl font-medium">I want to make changes in the copy</span>
+          <span className="mt-3 text-gray-400">
+            In about {newBranchTime > 0 ? Math.round(newBranchTime * 100) / 100 : '...'}ms, you created a copy of your database. Now, let{"'"}s make some changes to make sure that
+            it is an isolated copy of your origin database.
+          </span>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              toast({
+                duration: 1000,
+                description: 'Dropping a row from the copied database...',
+              })
+              fetch('/project/query', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  branchName: newBranchName,
+                  query: `WITH numbered_rows AS ( SELECT ctid, ROW_NUMBER() OVER (ORDER BY (SELECT 1)) as row_num FROM playing_with_neon ) DELETE FROM playing_with_neon WHERE ctid = ( SELECT ctid FROM numbered_rows WHERE row_num = 57650)`,
+                }),
+              })
+                .then((res) => res.json())
+                .then((res) => {
+                  if (res.time) setDropBranchTime(res.time)
+                  fetchData(newBranchName)
+                })
+              setStage((stage) => stage + 1)
+            }}
+            className="mt-8 max-w-max"
+          >
+            <CircleMinus size="18" />
+            <span className="ml-3">Remove a Row</span>
+          </Button>
+        </div>
+      ),
+      rightView: <DataTable rows={rows_2} columns={columns_2} databaseName={newBranchName} />,
+    },
+    {
+      label: 'Edited database',
+      icon: 'https://www.svgrepo.com/show/449277/subtract.svg',
+      branched: true,
+      leftView: (
+        <div className="contents">
+          <span className="text-xl font-medium">I want to make more changes in the copy</span>
+          <span className="mt-3 text-gray-400">
+            In about {dropBranchTime > 0 ? Math.round(dropBranchTime * 100) / 100 : '...'}ms, you dropped a row in your copied database. Now, let{"'"}s make some more changes to
+            make sure that your data is quite different from origin database.
+          </span>
+          <Button
+            onClick={() => {
+              toast({
+                duration: 1000,
+                description: 'Adding a row to the copied database...',
+              })
+              fetch('/project/query', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  branchName: newBranchName,
+                  query: `INSERT INTO playing_with_neon (id, singer, song) VALUES (57650, '${generateUsername()}', 'new-song-name')`,
+                }),
+              })
+                .then((res) => res.json())
+                .then((res) => {
+                  if (res.time) setInsertBranchTime(res.time)
+                  fetchData(newBranchName)
+                })
+              setStage((stage) => stage + 1)
+            }}
+            className="mt-8 max-w-max bg-green-400"
+          >
+            <CirclePlus size="18" />
+            <span className="ml-3">Add a Row</span>
+          </Button>
+        </div>
+      ),
+      rightView: <DataTable rows={rows_3} columns={columns_3} databaseName={newBranchName} />,
+    },
+    {
+      label: 'Edited database',
+      icon: 'https://www.svgrepo.com/show/532994/plus.svg',
+      branched: true,
+      leftView: (
+        <div className="contents">
+          <span className="text-xl font-medium">But... I messed it up!</span>
+          <span className="mt-3 text-gray-400">
+            In about {insertBranchTime > 0 ? Math.round(insertBranchTime * 100) / 100 : '...'}ms, you inserted a row in your copied database. But what if now you want to go back to
+            the original state of the copied database?
+          </span>
+          <Button
+            onClick={() => {
+              toast({
+                description: 'Requesting database restore...',
+              })
+              fetch('/project/reset?branchName=' + newBranchName)
+                .then((res) => res.json())
+                .then((res) => {
+                  if (res.time) setResetBranchTime(res.time)
+                  fetchData(newBranchName)
+                })
+              setStage((stage) => stage + 1)
+            }}
+            className="mt-8 max-w-max bg-blue-400"
+          >
+            <TimerReset size="18" />
+            <span className="ml-3">Restore the database</span>
+          </Button>
+        </div>
+      ),
+      rightView: <DataTable highlight={1} rows={rows_4} columns={columns_4} databaseName={newBranchName} />,
+    },
+    {
+      label: 'Restored database',
+      icon: 'https://www.svgrepo.com/show/521807/restore.svg',
+      branched: false,
+      leftView: (
+        <div className="contents">
+          <span className="text-xl font-medium">Yay, it{"'"}s back!</span>
+          <span className="mt-3 text-gray-400">
+            In about {resetBranchTime > 0 ? Math.round(resetBranchTime * 100) / 100 : '...'}ms, you restored your copied database to it{"'"}s original state. Feel free to edit your
+            copied database, again.
+          </span>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setStage(2)
+              setRows3([])
+              setRows4([])
+              setRows5([])
+              setColumns3([])
+              setColumns4([])
+              setColumns5([])
+            }}
+            className="mt-8 max-w-max bg-transparent text-gray-400"
+          >
+            <span className="ml-3">I want to make changes &rarr;</span>
+          </Button>
+        </div>
+      ),
+      rightView: <DataTable rows={rows_5} columns={columns_5} databaseName={newBranchName} />,
+    },
+  ]
+  const [stageLength, setStageLength] = useState(stages.length)
   const fetchBranchSize = (branchName: string) =>
     fetch(`/project/size?branchName=${branchName}`)
       .then((res) => res.json())
@@ -110,12 +332,6 @@ function Page() {
               setDestinationConnectionString(res.sanitizedConnectionString)
               setRows5(res.rows)
               setColumns5(Object.keys(res.rows[0]))
-              setTimeout(() => {
-                setIsVisible(true)
-                setTimeout(() => {
-                  setIsVisible(false)
-                }, 3000)
-              }, 1000)
             }
           }
           toast({
@@ -133,327 +349,97 @@ function Page() {
         }
       })
   useEffect(() => {
-    toast({
-      duration: 1000,
-      description: `Loading data from ${branchName} database...`,
-    })
-    fetchData('main')
-  }, [branchName, searchParams])
-  useEffect(() => {
-    setTimeout(() => {
-      driverObj.highlight({
-        element: '#createBranchButton',
-        popover: {
-          title: 'Get started!',
-          description: 'Click here to create a copy of a Postgres database.',
-        },
+    console.log(stage)
+    if (stage === 1) {
+      toast({
+        duration: 1000,
+        description: 'Fetching data and size of the main database...',
       })
-    }, 1000)
-  }, [])
+      fetchData('main')
+    } else if (stage === 2) {
+    } else if (stage === 3) {
+    } else if (stage === 4) {
+    } else if (stage === 5) {
+    }
+  }, [stage])
   return (
-    <>
-      {isVisible && (
-        <div className="fixed left-0 top-0 h-screen w-screen">
-          <Confetti />
-        </div>
-      )}
-      <div className="mx-auto mb-24 max-w-screen-lg">
-        <div className="flex flex-col">
-          <h1 className="tracking-extra-tight text-balance text-[32px] font-semibold leading-[0.9] text-white lg:text-[44px] xl:text-[56px]">Copy database in milliseconds</h1>
-          <h2 className="tracking-extra-tight mt-[18px] text-balance text-xl font-light text-[#AFB1B6] md:mt-2 lg:mt-3 lg:text-base xl:mt-4 xl:text-lg">
-            Instantly provison a copy of your Postgres database on&nbsp;
-            <a className="text-white underline underline-offset-4 hover:no-underline" href="https://console.neon.tech/signup">
-              Neon
-            </a>
-            .
-          </h2>
-        </div>
-        <div className="flex flex-row items-center py-10">
-          <span></span>
-          <Button
-            id="createBranchButton"
-            className="ml-1 max-w-max bg-white shadow hover:bg-[#00e5bf]"
-            disabled={button_1}
-            onClick={() => {
-              setButton1(true)
-              toast({
-                duration: 2000,
-                description: `Creating a copy of data in ${branchName} database...`,
-              })
-              driverObj.destroy()
-              fetch('/project/create', { method: 'POST' })
-                .then((res) => res.json())
-                .then((res) => {
-                  toast({
-                    duration: 1000,
-                    description: `Creating a copy of ${branchName} database...`,
-                  })
-                  setNewBranchName(res.new_branch_id)
-                  if (res.time) setNewBranchTime(res.time)
-                  fetchData(res.new_branch_id).then(() => {
-                    setTimeout(() => {
-                      document.getElementById('provisioned')?.scrollIntoView({
-                        behavior: 'smooth',
-                      })
-                      setTimeout(() => {
-                        driverObj.highlight({
-                          element: '#dropRowButton',
-                          popover: {
-                            title: 'Time to make changes!',
-                            description: 'Now that you have copied your database, you can confidently make changes. Click here to drop a row.',
-                          },
-                        })
-                      }, 1000)
-                    }, 200)
-                  })
-                })
-            }}
-          >
-            <svg height="16" viewBox="0 0 16 16" version="1.1" width="16" className="mr-2 fill-black">
-              <path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"></path>
-            </svg>
-            <span>Create a copy</span>
-          </Button>
-        </div>
-        <div className="flex w-full flex-row flex-wrap">
-          {rows.length > 0 && (
-            <div className="flex w-full flex-col">
-              <div className="flex flex-row">
-                <span>Database Name:&nbsp;</span>
-                <span className="font-bold">{branchName}</span>
-              </div>
-              <div className="mt-2 flex flex-row">
-                <span>Database Size:&nbsp;</span>
-                <span className="font-bold">{mainBranchSize} GiB</span>
-              </div>
-              <div className="mt-2 flex flex-row">
-                <span>Connection String:&nbsp;</span>
-                <span className="font-bold">{sourceConnectionString}</span>
-              </div>
-              <DataTable rows={rows} columns={columns} />
-            </div>
-          )}
-          {rows_2.length > 0 && (
-            <div id="provisioned" className="flex w-full flex-col pt-24">
-              <div className="flex flex-row">
-                <span>Database Name:&nbsp;</span>
-                <span className="font-bold">{newBranchName}</span>
-              </div>
-              <div className="mt-2 flex flex-row">
-                <span>Database Size:&nbsp;</span>
-                <span className="font-bold">{newBranchSize} GiB</span>
-              </div>
-              <div className="mt-2 flex flex-row">
-                <span>Connection String:&nbsp;</span>
-                <span className="font-bold">{destinationConnectionString}</span>
-              </div>
-              {newBranchTime > 0 && (
-                <div className="mt-2 flex flex-row">
-                  <span>
-                    Created a new database in <span className="font-bold text-[#00e5bf]">{Math.round(newBranchTime * 100) / 100} ms</span>
-                  </span>
-                </div>
-              )}
-              <div className="mt-3 flex flex-row flex-wrap gap-2">
-                <Button
-                  id="dropRowButton"
-                  disabled={button_2}
-                  className="ml-1 max-w-max bg-white shadow hover:bg-[#00e5bf]"
-                  onClick={() => {
-                    setButton2(true)
-                    driverObj.destroy()
-                    fetch('/project/query', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        branchName: newBranchName,
-                        query: `WITH numbered_rows AS ( SELECT ctid, ROW_NUMBER() OVER (ORDER BY (SELECT 1)) as row_num FROM playing_with_neon ) DELETE FROM playing_with_neon WHERE ctid = ( SELECT ctid FROM numbered_rows WHERE row_num = 57650)`,
-                      }),
-                    })
-                      .then((res) => res.json())
-                      .then((res) => {
-                        if (res.time) setDropBranchTime(res.time)
-                        fetchData(newBranchName).then(() => {
-                          setTimeout(() => {
-                            document.getElementById('insert-row')?.scrollIntoView({
-                              behavior: 'smooth',
-                            })
-                            setTimeout(() => {
-                              driverObj.highlight({
-                                element: '#insertRowButton',
-                                popover: {
-                                  title: 'Time to make more changes!',
-                                  description: "Let's make more changes. Click here to insert a row.",
-                                },
-                              })
-                            }, 1000)
-                          }, 200)
-                        })
-                      })
-                  }}
-                >
-                  <CircleMinus size="18" />
-                  <span className="ml-3">Drop A Row</span>
-                </Button>
-              </div>
-              <DataTable rows={rows_2} columns={columns_2} />
-            </div>
-          )}
-          {rows_3.length > 0 && (
-            <div id="insert-row" className="flex w-full flex-col pt-24">
-              <div className="flex flex-row">
-                <span>Database Name:&nbsp;</span>
-                <span className="font-bold">{newBranchName}</span>
-              </div>
-              <div className="mt-2 flex flex-row">
-                <span>Database Size:&nbsp;</span>
-                <span className="font-bold">{newBranchSize} GiB</span>
-              </div>
-              <div className="mt-2 flex flex-row">
-                <span>Connection String:&nbsp;</span>
-                <span className="font-bold">{destinationConnectionString}</span>
-              </div>
-              {dropBranchTime > 0 && (
-                <div className="mt-2 flex flex-row">
-                  <span>
-                    Dropped the row with <span className="font-bold text-red-400">id 57650</span> in{' '}
-                    <span className="font-bold text-[#00e5bf]">{Math.round(dropBranchTime * 100) / 100} ms</span>
-                  </span>
-                </div>
-              )}
-              <div className="mt-3 flex flex-row flex-wrap gap-2">
-                <Button
-                  id="insertRowButton"
-                  disabled={button_3}
-                  className="ml-1 max-w-max bg-white shadow hover:bg-[#00e5bf]"
-                  onClick={() => {
-                    setButton3(true)
-                    driverObj.destroy()
-                    fetch('/project/query', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        branchName: newBranchName,
-                        query: `INSERT INTO playing_with_neon (id, singer, song) VALUES (57650, '${generateUsername()}', 'new-song-name')`,
-                      }),
-                    })
-                      .then((res) => res.json())
-                      .then((res) => {
-                        if (res.time) setInsertBranchTime(res.time)
-                        fetchData(newBranchName).then(() => {
-                          setTimeout(() => {
-                            document.getElementById('reset-row')?.scrollIntoView({
-                              behavior: 'smooth',
-                            })
-                            setTimeout(() => {
-                              driverObj.highlight({
-                                element: '#resetRowButton',
-                                popover: {
-                                  title: 'Reset the changes!',
-                                  description: 'Oops, we modified the data. What if you wanted to have the same data again?',
-                                },
-                              })
-                            }, 1000)
-                          }, 200)
-                        })
-                      })
-                  }}
-                >
-                  <CirclePlus size="18" />
-                  <span className="ml-3">Insert A Row</span>
-                </Button>
-              </div>
-              <DataTable rows={rows_3} columns={columns_3} />
-            </div>
-          )}
-          {rows_4.length > 0 && (
-            <div id="reset-row" className="flex w-full flex-col pt-24">
-              <div className="flex flex-row">
-                <span>Database Name:&nbsp;</span>
-                <span className="font-bold">{newBranchName}</span>
-              </div>
-              <div className="mt-2 flex flex-row">
-                <span>Database Size:&nbsp;</span>
-                <span className="font-bold">{newBranchSize} GiB</span>
-              </div>
-              <div className="mt-2 flex flex-row">
-                <span>Connection String:&nbsp;</span>
-                <span className="font-bold">{destinationConnectionString}</span>
-              </div>
-              {insertBranchTime > 0 && (
-                <div className="mt-2 flex flex-row">
-                  <span>
-                    Inserted a row with <span className="font-bold text-green-400">id 57650</span> in{' '}
-                    <span className="font-bold text-[#00e5bf]">{Math.round(insertBranchTime * 100) / 100} ms</span>
-                  </span>
-                </div>
-              )}
-              <div className="mt-3 flex flex-row flex-wrap gap-2">
-                <Button
-                  id="resetRowButton"
-                  disabled={button_4}
-                  className="ml-1 max-w-max bg-white shadow hover:bg-[#00e5bf]"
-                  onClick={() => {
-                    setButton4(true)
-                    driverObj.destroy()
-                    toast({
-                      description: 'Requesting database reset...',
-                    })
-                    fetch('/project/reset?branchName=' + newBranchName)
-                      .then((res) => res.json())
-                      .then((res) => {
-                        if (res.time) setResetBranchTime(res.time)
-                        fetchData(newBranchName).then(() => {
-                          setTimeout(() => {
-                            document.getElementById('resetted-branch')?.scrollIntoView({
-                              behavior: 'smooth',
-                            })
-                          }, 200)
-                        })
-                      })
-                  }}
-                >
-                  <TimerReset size="18" />
-                  <span className="ml-3">Reset the database</span>
-                </Button>
-              </div>
-              <DataTable highlight={1} rows={rows_4} columns={columns_4} />
-            </div>
-          )}
-          {rows_5.length > 0 && (
-            <div id="resetted-branch" className="flex w-full flex-col pt-24">
-              <div className="flex flex-row">
-                <span>Database Name:&nbsp;</span>
-                <span className="font-bold">{newBranchName}</span>
-              </div>
-              <div className="mt-2 flex flex-row">
-                <span>Database Size:&nbsp;</span>
-                <span className="font-bold">{newBranchSize} GiB</span>
-              </div>
-              <div className="mt-2 flex flex-row">
-                <span>Connection String:&nbsp;</span>
-                <span className="font-bold">{destinationConnectionString}</span>
-              </div>
-              {resetBranchTime > 0 && (
-                <div className="mt-2 flex flex-row">
-                  <span>
-                    database reset in <span className="font-bold text-[#00e5bf]">{Math.round(resetBranchTime * 100) / 100} ms</span>
-                  </span>
-                </div>
-              )}
-              <DataTable rows={rows_5} columns={columns_5} />
-            </div>
-          )}
-        </div>
+    <div className="flex flex-col items-center">
+      <div className="flex flex-row items-center gap-x-3">
+        {new Array(stageLength).fill(0).map((i, _) => (
+          <div key={_} className={cn('rounded-full', stage !== _ ? 'size-[6px] bg-white/50' : 'size-[8px] bg-white')} />
+        ))}
       </div>
-    </>
-  )
-}
-
-export default function Home() {
-  return (
-    <Suspense>
-      <Page />
-    </Suspense>
+      <div className="mt-12 flex flex-row items-center">
+        {new Array(stageLength).fill(0).map((i, _) => (
+          <Fragment key={_}>
+            <div className="relative flex flex-row">
+              {!(stages[_].branched && _ - 1 > 0 && stages[_ - 1].branched) && stages[_].branched && (
+                <div className={cn('branching-line', _ === stage ? 'bg-white' : 'bg-white/10')} />
+              )}
+              {!(stages[_].branched && _ - 1 > 0 && stages[_ - 1].branched) && _ - 1 >= 0 && stages[_ - 1].branched && (
+                <div className={cn('branching-line-begin', _ === stage ? 'bg-white' : 'bg-white/10')} />
+              )}
+              {stages[_].branched && _ - 1 > 0 && stages[_ - 1].branched && <div className={cn('horizontal-line mt-6 w-[60px]', _ === stage ? 'bg-white' : 'bg-white/10')} />}
+              {!(stages[_].branched && _ - 1 > 0 && stages[_ - 1].branched) && (
+                <div
+                  className={cn(
+                    'horizontal-line',
+                    _ === stage ? 'bg-white' : 'bg-white/10',
+                    stages[_].branched || (_ - 1 >= 0 && stages[_ - 1].branched) ? '!w-[30px]' : '!w-[60px]',
+                    _ - 1 >= 0 && stages[_ - 1].branched && 'ml-[30px]',
+                  )}
+                ></div>
+              )}
+            </div>
+            <div
+              className={cn(
+                'relative mx-8 flex size-[80px] flex-col items-center justify-center rounded-full border',
+                _ !== stage ? 'bg-white/10 opacity-50' : 'bg-white',
+                stages[_].branched && 'mt-12',
+              )}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className="w-[30px] translate-x-0.5" src={stages[_].icon} alt="ChartJS" />
+              {stages[stage].label && (
+                <span className={cn('absolute -bottom-8 z-20 min-w-max max-w-max', _ === stage ? 'text-white' : 'text-white/10 opacity-10')}>{stages[stage].label}</span>
+              )}
+            </div>
+          </Fragment>
+        ))}
+      </div>
+      <div className={cn('my-24 grid w-full max-w-4xl grid-cols-1 gap-8', stages[stage].rightView && 'md:grid-cols-2')}>
+        {stages[stage].leftView && <div className="flex w-full flex-col p-4">{stages[stage].leftView}</div>}
+        {stages[stage].rightView && <div className="flex w-full flex-col p-4">{stages[stage].rightView}</div>}
+      </div>
+      <div className="mt-12 flex flex-row items-center gap-x-3">
+        <Button
+          variant="outline"
+          disabled={!prevOn || Boolean(stages[stage].prev) === false}
+          className={cn((!prevOn || Boolean(stages[stage].prev) === false) && 'hidden', 'bg-transparent')}
+          onClick={() => {
+            setStage((stage) => {
+              const tmp = stage - 1
+              if (tmp < 0) return stageLength - 1
+              return tmp % stageLength
+            })
+          }}
+        >
+          &larr; Prev
+        </Button>
+        <Button
+          variant="outline"
+          disabled={!nextOn || Boolean(stages[stage].next) === false}
+          className={cn((!nextOn || Boolean(stages[stage].next) === false) && 'hidden', 'bg-transparent')}
+          onClick={() => {
+            setStage((stage) => {
+              const tmp = (stage + 1) % stageLength
+              return tmp
+            })
+          }}
+        >
+          Next &rarr;
+        </Button>
+      </div>
+    </div>
   )
 }
