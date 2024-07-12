@@ -51,7 +51,7 @@ function DataTable({ rows, columns, highlight = 0, databaseName = 'main' }: { ro
 }
 
 export default function Onboarding() {
-  const [stage, setStage] = useState(0)
+  const [stage, setStage] = useState(5)
   const [nextOn, setNextOn] = useState(true)
   const [prevOn, setPrevOn] = useState(true)
   //
@@ -104,7 +104,7 @@ export default function Onboarding() {
       ),
     },
     {
-      label: 'Origin database',
+      label: 'Original database',
       icon: 'https://www.svgrepo.com/show/471315/database-02.svg',
       branched: false,
       leftView: (
@@ -156,7 +156,7 @@ export default function Onboarding() {
           <span className="text-xl font-medium">I want to make changes in the copy</span>
           <span className="mt-3 text-gray-400">
             In about {newBranchTime > 0 ? Math.round(newBranchTime * 100) / 100 : '...'}ms, you created a copy of your database. Now, let{"'"}s make some changes to make sure that
-            it is an isolated copy of your origin database.
+            it is an isolated copy of your original database.
           </span>
           <Button
             variant="destructive"
@@ -198,7 +198,7 @@ export default function Onboarding() {
           <span className="text-xl font-medium">I want to make more changes in the copy</span>
           <span className="mt-3 text-gray-400">
             In about {dropBranchTime > 0 ? Math.round(dropBranchTime * 100) / 100 : '...'}ms, you dropped a row in your copied database. Now, let{"'"}s make some more changes to
-            make sure that your data is quite different from origin database.
+            make sure that your data is quite different from original database.
           </span>
           <Button
             onClick={() => {
@@ -294,6 +294,9 @@ export default function Onboarding() {
           >
             <span className="ml-3">I want to make changes &rarr;</span>
           </Button>
+          <a className="mt-8 text-xs" href="https://console.neon.tech/signup" target="_blank">
+            <Button className="bg-green-400">Sign up for Neon &rarr;</Button>
+          </a>
         </div>
       ),
       rightView: <DataTable rows={rows_5} columns={columns_5} databaseName={newBranchName} />,
