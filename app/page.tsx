@@ -363,7 +363,6 @@ export default function Onboarding() {
         }
       })
   useEffect(() => {
-    console.log(stage)
     if (stage === 1) {
       toast({
         duration: 1000,
@@ -371,10 +370,15 @@ export default function Onboarding() {
       })
       fetchData('main')
     } else if (stage === 2) {
+      //
     } else if (stage === 3) {
+      //
     } else if (stage === 4) {
+      //
     } else if (stage === 5) {
+      //
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage])
   return (
     <div className="flex flex-col items-center">
