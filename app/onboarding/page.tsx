@@ -52,8 +52,14 @@ export default function Onboarding() {
       branched: false,
       leftView: (
         <div className="contents">
-          <span className="text-xl font-medium">Branching Feature</span>
-          <span className="mt-3 text-gray-400">Instantly branch your production database to create a staging environment for testing out schema changes.</span>
+          <span className="text-xl font-medium">Create your own Postgres database</span>
+          <span className="mt-3 text-gray-400">
+            A Postgres database can be created{' '}
+            <a className="border-b text-white" target="_blank" href="https://neon.tech/demos/instant-postgres">
+              under seconds
+            </a>{' '}
+            with Neon. For now, we have prepared a database for you to copy. Currently, the size of this database is of about 10 GiB.
+          </span>
           <Button
             onClick={() => {
               setStage((stage) => stage + 1)
@@ -70,13 +76,15 @@ export default function Onboarding() {
       rightView: <span>table data</span>,
     },
     {
-      label: 'Copy database',
+      label: 'Copied database',
       icon: 'https://www.svgrepo.com/show/445570/branch.svg',
       branched: true,
       leftView: (
         <div className="contents">
-          <span className="text-xl font-medium">Branching Feature</span>
-          <span className="mt-3 text-gray-400">Instantly branch your production database to create a staging environment for testing out schema changes.</span>
+          <span className="text-xl font-medium">I want to make changes in the copy</span>
+          <span className="mt-3 text-gray-400">
+            In about 300ms, you created a copy of your database. Now, let{"'"}s make some changes to make sure that it is an isolated copy of your origin database.
+          </span>
           <Button
             variant="destructive"
             onClick={() => {
@@ -92,13 +100,15 @@ export default function Onboarding() {
       rightView: <span>table data</span>,
     },
     {
-      label: 'Edited table',
+      label: 'Edited database',
       icon: 'https://www.svgrepo.com/show/449277/subtract.svg',
       branched: true,
       leftView: (
         <div className="contents">
-          <span className="text-xl font-medium">Branching Feature</span>
-          <span className="mt-3 text-gray-400">Instantly branch your production database to create a staging environment for testing out schema changes.</span>
+          <span className="text-xl font-medium">I want to make more changes in the copy</span>
+          <span className="mt-3 text-gray-400">
+            In about 300ms, you dropped a row of your copied database. Now, let{"'"}s make some more changes to make sure that your data is quite different from origin database.
+          </span>
           <Button
             onClick={() => {
               setStage((stage) => stage + 1)
@@ -113,13 +123,15 @@ export default function Onboarding() {
       rightView: <span>table data</span>,
     },
     {
-      label: 'Edited table',
+      label: 'Edited database',
       icon: 'https://www.svgrepo.com/show/532994/plus.svg',
       branched: true,
       leftView: (
         <div className="contents">
-          <span className="text-xl font-medium">Branching Feature</span>
-          <span className="mt-3 text-gray-400">Instantly branch your production database to create a staging environment for testing out schema changes.</span>
+          <span className="text-xl font-medium">But... I messed it up!</span>
+          <span className="mt-3 text-gray-400">
+            In about 300ms, you inserted a row in your copied database. But what if now you want to go back to the original state of the copied database?
+          </span>
           <Button
             onClick={() => {
               setStage((stage) => stage + 1)
@@ -134,13 +146,16 @@ export default function Onboarding() {
       rightView: <span>table data</span>,
     },
     {
-      label: 'Restored table',
+      label: 'Restored database',
       icon: 'https://www.svgrepo.com/show/521807/restore.svg',
       branched: false,
       leftView: (
         <div className="contents">
-          <span className="text-xl font-medium">Branching Feature</span>
-          <span className="mt-3 text-gray-400">Instantly branch your production database to create a staging environment for testing out schema changes.</span>
+          <span className="text-xl font-medium">Yay, it{"'"}s back!</span>
+          <span className="mt-3 text-gray-400">In about 300ms, you restored your copied database to it{"'"}s original state. Feel free to edit your copied database, again.</span>
+          <Button variant="outline" onClick={() => setStage(2)} className="mt-8 max-w-max bg-transparent text-gray-400">
+            <span className="ml-3">I want to make changes &rarr;</span>
+          </Button>
         </div>
       ),
       rightView: <span>table data</span>,
