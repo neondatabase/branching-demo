@@ -51,7 +51,7 @@ function DataTable({ rows, columns, highlight = 0, databaseName = 'main' }: { ro
 }
 
 export default function Onboarding() {
-  const [stage, setStage] = useState(5)
+  const [stage, setStage] = useState(0)
   const [nextOn, setNextOn] = useState(true)
   const [prevOn, setPrevOn] = useState(true)
   //
@@ -276,8 +276,12 @@ export default function Onboarding() {
         <div className="contents">
           <span className="text-xl font-medium">Yay, it{"'"}s back!</span>
           <span className="mt-3 text-gray-400">
-            In about {resetBranchTime > 0 ? Math.round(resetBranchTime * 100) / 100 : '...'}ms, you restored your copied database to it{"'"}s original state. Feel free to edit your
-            copied database, again.
+            In about {resetBranchTime > 0 ? Math.round(resetBranchTime * 100) / 100 : '...'}ms, you restored your copied database to it{"'"}s original state. To try this on your
+            own data,{' '}
+            <a className="text-green-400 underline" href="https://console.neon.tech/signup" target="_blank">
+              Sign up for Neon
+            </a>
+            .
           </span>
           <Button
             variant="outline"
@@ -294,9 +298,6 @@ export default function Onboarding() {
           >
             <span className="ml-3">I want to make changes &rarr;</span>
           </Button>
-          <a className="mt-8 text-xs" href="https://console.neon.tech/signup" target="_blank">
-            <Button className="bg-green-400">Sign up for Neon &rarr;</Button>
-          </a>
         </div>
       ),
       rightView: <DataTable rows={rows_5} columns={columns_5} databaseName={newBranchName} />,
