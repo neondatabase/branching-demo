@@ -1,12 +1,13 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useToast } from '@/components/ui/use-toast'
 import { cn } from '@/lib/utils'
 import { motion } from 'framer-motion'
 import { CircleMinus, CirclePlus, TimerReset } from 'lucide-react'
-import { Fragment, ReactElement, useEffect, useState } from 'react'
+import { Dispatch, Fragment, ReactElement, SetStateAction, useEffect, useState } from 'react'
 import Confetti from 'react-confetti'
 import { generateUsername } from 'unique-username-generator'
 
@@ -20,7 +21,23 @@ interface Stage {
   label?: string
 }
 
-function DataTable({ rows, columns, highlight = 0, databaseName = 'main' }: { rows: any[]; columns: any[]; highlight?: number; databaseName?: string }) {
+type CheckBoxRow = Record<number, boolean>
+
+function DataTable({
+  rows,
+  columns,
+  highlight = 0,
+  databaseName = 'main',
+  editable = false,
+  setToBeRemoved,
+}: {
+  rows: any[]
+  columns: any[]
+  highlight?: number
+  databaseName?: string
+  editable?: boolean
+  setToBeRemoved?: Dispatch<SetStateAction<CheckBoxRow>>
+}) {
   return (
     <>
       <span className="text-md text-white/30">
@@ -30,6 +47,7 @@ function DataTable({ rows, columns, highlight = 0, databaseName = 'main' }: { ro
         {columns && (
           <TableHeader>
             <TableRow>
+              {editable && <TableHead>&nbsp;</TableHead>}
               {columns.map((i) => (
                 <TableHead key={i}>{i}</TableHead>
               ))}
@@ -40,6 +58,30 @@ function DataTable({ rows, columns, highlight = 0, databaseName = 'main' }: { ro
           <TableBody>
             {rows.map((i, idx) => (
               <TableRow className={highlight - 1 === idx ? 'bg-green-800 text-white' : ''} key={idx}>
+                {editable && (
+                  <TableCell>
+                    <Checkbox
+                      onCheckedChange={(checked) => {
+                        if (setToBeRemoved) {
+                          if (checked) {
+                            setToBeRemoved((toBeRemoved: CheckBoxRow) => {
+                              const tmpToBeRemoved = toBeRemoved
+                              tmpToBeRemoved[i.id] = true
+                              return tmpToBeRemoved
+                            })
+                          } else {
+                            setToBeRemoved((toBeRemoved: CheckBoxRow) => {
+                              const tmpToBeRemoved = toBeRemoved
+                              if (tmpToBeRemoved[i.id]) delete tmpToBeRemoved[i.id]
+                              return tmpToBeRemoved
+                            })
+                          }
+                        }
+                        return checked
+                      }}
+                    />
+                  </TableCell>
+                )}
                 {Object.values(i).map((j: any, idx2) => (
                   <TableCell key={idx2}>{j}</TableCell>
                 ))}
@@ -66,6 +108,7 @@ export default function Onboarding() {
   const [mainBranchSize, setMainBranchSize] = useState(0)
   const [resetBranchTime, setResetBranchTime] = useState(0)
   const [insertBranchTime, setInsertBranchTime] = useState(0)
+  const [toBeRemoved, setToBeRemoved] = useState<CheckBoxRow>({})
   const [sourceConnectionString, setSourceConnectionString] = useState('')
   const [destinationConnectionString, setDestinationConnectionString] = useState('')
   const [rows, setRows] = useState([])
@@ -165,6 +208,7 @@ export default function Onboarding() {
           </span>
           <Button
             variant="destructive"
+            disabled={Object.keys(toBeRemoved).length < 1}
             onClick={() => {
               toast({
                 duration: 4000,
@@ -175,7 +219,9 @@ export default function Onboarding() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   branchName: newBranchName,
-                  query: `WITH numbered_rows AS ( SELECT ctid, ROW_NUMBER() OVER (ORDER BY (SELECT 1)) as row_num FROM playing_with_neon ) DELETE FROM playing_with_neon WHERE ctid = ( SELECT ctid FROM numbered_rows WHERE row_num = 57650)`,
+                  query: `DELETE FROM playing_with_neon WHERE ${Object.keys(toBeRemoved)
+                    .map((i) => `id = ${i}`)
+                    .join(' OR ')}`,
                 }),
               })
                 .then((res) => res.json())
@@ -188,11 +234,11 @@ export default function Onboarding() {
             className="mt-8 max-w-max"
           >
             <CircleMinus size="18" />
-            <span className="ml-3">Remove a random row</span>
+            <span className="ml-3">Remove selected rows</span>
           </Button>
         </div>
       ),
-      rightView: <DataTable rows={rows_2} columns={columns_2} databaseName={newBranchName} />,
+      rightView: <DataTable editable={true} setToBeRemoved={setToBeRemoved} rows={rows_2} columns={columns_2} databaseName={newBranchName} />,
     },
     {
       label: 'Edited database',
