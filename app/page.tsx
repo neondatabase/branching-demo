@@ -390,11 +390,7 @@ export default function Onboarding() {
   }, [stage])
   return (
     <div className="flex flex-col items-center">
-      {isVisible && (
-        <div className="fixed left-0 top-0 h-screen w-screen">
-          <Confetti />
-        </div>
-      )}
+      <div className={cn('fixed left-0 top-0 h-screen w-screen', isVisible ? 'z-[10000]' : 'z-[-1]')}>{isVisible && <Confetti />}</div>
       <div className="flex flex-row items-center gap-x-3">
         {new Array(stageLength).fill(0).map((i, _) => (
           <div key={_} className={cn('rounded-full', stage !== _ ? 'size-[6px] bg-white/50' : 'size-[8px] bg-white')} />
