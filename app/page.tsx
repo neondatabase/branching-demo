@@ -158,8 +158,8 @@ export default function Onboarding() {
         <div className="contents">
           <span className="text-xl font-medium">I want to make changes in the copy</span>
           <span className="mt-3 text-balance text-gray-400">
-            In about {newBranchTime > 0 ? Math.round(newBranchTime * 100) / 100 : '............'}ms, your copy was created. Now, let{"'"}s make a change to make sure that it is an
-            isolated copy of your original database.
+            In about <span className={cn(newBranchTime > 0 && 'text-green-400')}>{newBranchTime > 0 ? Math.round(newBranchTime * 100) / 100 : '............'}</span>ms, your copy
+            was created. Now, let{"'"}s make a change to make sure that it is an isolated copy of your original database.
           </span>
           <Button
             variant="destructive"
@@ -200,8 +200,8 @@ export default function Onboarding() {
         <div className="contents">
           <span className="text-xl font-medium">I want to make more changes in the copy</span>
           <span className="mt-3 text-balance text-gray-400">
-            In about {dropBranchTime > 0 ? Math.round(dropBranchTime * 100) / 100 : '............'}ms, you dropped a row in your copied database. Now, let{"'"}s make one more
-            change to make sure that your data is quite different from the original database.
+            In about <span className={cn(dropBranchTime > 0 && 'text-green-400')}>{dropBranchTime > 0 ? Math.round(dropBranchTime * 100) / 100 : '............'}</span>ms, you
+            dropped a row in your copied database. Now, let{"'"}s make one more change to make sure that your data is quite different from the original database.
           </span>
           <Button
             onClick={() => {
@@ -241,8 +241,8 @@ export default function Onboarding() {
         <div className="contents">
           <span className="text-xl font-medium">But... I messed it up!</span>
           <span className="mt-3 text-balance text-gray-400">
-            In about {insertBranchTime > 0 ? Math.round(insertBranchTime * 100) / 100 : '............'}ms, you inserted a row in your copied database. But what if you wanted to
-            restore to the initial state?
+            In about <span className={cn(insertBranchTime > 0 && 'text-green-400')}>{insertBranchTime > 0 ? Math.round(insertBranchTime * 100) / 100 : '............'}</span>ms, you
+            inserted a row in your copied database. But what if you wanted to restore to the initial state?
           </span>
           <Button
             onClick={() => {
@@ -284,8 +284,8 @@ export default function Onboarding() {
         <div className="contents">
           <span className="text-xl font-medium">Yay, it{"'"}s back!</span>
           <span className="mt-3 text-balance text-gray-400">
-            In about {resetBranchTime > 0 ? Math.round(resetBranchTime * 100) / 100 : '............'}ms, you restored your copied database to it{"'"}s original state. To try this
-            on your own data,{' '}
+            In about <span className={cn(resetBranchTime > 0 && 'text-green-400')}>{resetBranchTime > 0 ? Math.round(resetBranchTime * 100) / 100 : '............'}</span>ms, you
+            restored your copied database to it{"'"}s original state. To try this on your own data,{' '}
             <a className="text-green-400 underline" href="https://console.neon.tech/signup" target="_blank">
               Sign up for Neon
             </a>
