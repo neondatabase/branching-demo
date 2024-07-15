@@ -123,14 +123,14 @@ export default function Onboarding() {
           <Button
             onClick={() => {
               toast({
-                duration: 1000,
+                duration: 4000,
                 description: `Creating a copy of data in main database...`,
               })
               fetch('/project/create', { method: 'POST' })
                 .then((res) => res.json())
                 .then((res) => {
                   toast({
-                    duration: 1000,
+                    duration: 4000,
                     description: `Fetching data in the copied database...`,
                   })
                   setNewBranchName(res.new_branch_id)
@@ -165,7 +165,7 @@ export default function Onboarding() {
             variant="destructive"
             onClick={() => {
               toast({
-                duration: 1000,
+                duration: 4000,
                 description: 'Dropping a row from the copied database...',
               })
               fetch('/project/query', {
@@ -206,7 +206,7 @@ export default function Onboarding() {
           <Button
             onClick={() => {
               toast({
-                duration: 1000,
+                duration: 4000,
                 description: 'Adding a row to the copied database...',
               })
               fetch('/project/query', {
@@ -247,7 +247,7 @@ export default function Onboarding() {
           <Button
             onClick={() => {
               toast({
-                duration: 1000,
+                duration: 4000,
                 description: 'Requesting database restore...',
               })
               fetch('/project/reset?branchName=' + newBranchName)
@@ -255,7 +255,7 @@ export default function Onboarding() {
                 .then((res) => {
                   if (res.time) setResetBranchTime(res.time)
                   toast({
-                    duration: 1000,
+                    duration: 4000,
                     description: 'Fetching data of the restored database...',
                   })
                   fetchData(newBranchName).then(() => {
@@ -357,7 +357,7 @@ export default function Onboarding() {
             }
           }
           toast({
-            duration: 1000,
+            duration: 4000,
             description: `Data from ${branchName} database loaded.`,
           })
         } else {
@@ -373,7 +373,7 @@ export default function Onboarding() {
   useEffect(() => {
     if (stage === 1) {
       toast({
-        duration: 1000,
+        duration: 4000,
         description: 'Fetching data and size of the main database...',
       })
       fetchData('main')
@@ -439,7 +439,7 @@ export default function Onboarding() {
                     exit={{ opacity: 0 }}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.8 }}
                   >
                     {stages[stage].label}
                   </motion.span>
@@ -457,7 +457,7 @@ export default function Onboarding() {
               exit={{ opacity: 0 }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.8 }}
               className={cn('flex w-full flex-col p-4')}
             >
               {stages[stage].leftView}
@@ -471,7 +471,7 @@ export default function Onboarding() {
               exit={{ opacity: 0 }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.8 }}
               className={cn('flex w-full flex-col p-4')}
             >
               {stages[stage].rightView}
