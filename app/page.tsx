@@ -431,20 +431,18 @@ export default function Onboarding() {
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="w-[30px] translate-x-0.5" src={stages[_].icon} alt="ChartJS" />
-              {stages[stage].label && (
-                <AnimatePresence mode="popLayout">
-                  <motion.span
-                    key={stage}
-                    className={cn('absolute -bottom-8 z-20 min-w-max max-w-max', _ === stage ? 'text-white' : 'text-white/10 opacity-10')}
-                    exit={{ opacity: 0 }}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.8 }}
-                  >
-                    {stages[stage].label}
-                  </motion.span>
-                </AnimatePresence>
-              )}
+              <AnimatePresence mode="popLayout">
+                <motion.span
+                  key={stage}
+                  exit={{ opacity: 0 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.8 }}
+                  className={cn('absolute -bottom-8 z-20 min-w-max max-w-max', _ === stage ? 'text-white' : 'text-white/10 opacity-10')}
+                >
+                  {stages[_].label}
+                </motion.span>
+              </AnimatePresence>
             </div>
           </Fragment>
         ))}
