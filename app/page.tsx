@@ -441,16 +441,8 @@ export default function Onboarding() {
         ))}
       </div>
       <div className={cn('my-24 grid w-full max-w-4xl grid-cols-1 gap-8', stages[stage].rightView && 'md:grid-cols-2')}>
-        {stages[stage].leftView && (
-          <motion.span key={stage} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className={cn('flex w-full flex-col p-4')}>
-            {stages[stage].leftView}
-          </motion.span>
-        )}
-        {stages[stage].rightView && (
-          <motion.span key={stage} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className={cn('flex w-full flex-col p-4')}>
-            {stages[stage].rightView}
-          </motion.span>
-        )}
+        {stages[stage].leftView && <div className={cn('flex w-full flex-col p-4')}>{stages[stage].leftView}</div>}
+        {stages[stage].rightView && <div className={cn('flex w-full flex-col p-4')}>{stages[stage].rightView}</div>}
       </div>
       <div className="mt-12 flex flex-row items-center gap-x-3">
         <Button
