@@ -4,11 +4,11 @@ import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useToast } from '@/components/ui/use-toast'
 import { cn } from '@/lib/utils'
+import { motion } from 'framer-motion'
 import { CircleMinus, CirclePlus, TimerReset } from 'lucide-react'
 import { Fragment, ReactElement, useEffect, useState } from 'react'
-import { generateUsername } from 'unique-username-generator'
 import Confetti from 'react-confetti'
-import { motion, AnimatePresence } from 'framer-motion'
+import { generateUsername } from 'unique-username-generator'
 
 interface Stage {
   icon: string
@@ -427,50 +427,29 @@ export default function Onboarding() {
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="w-[30px] translate-x-0.5" src={stages[_].icon} alt="ChartJS" />
-              <AnimatePresence mode="popLayout">
-                <motion.span
-                  key={stage}
-                  exit={{ opacity: 0 }}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.8 }}
-                  className={cn('absolute -bottom-8 z-20 min-w-max max-w-max', _ === stage ? 'text-white' : 'text-white/10 opacity-10')}
-                >
-                  {stages[_].label}
-                </motion.span>
-              </AnimatePresence>
+              <motion.span
+                key={stage}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1 }}
+                className={cn('absolute -bottom-8 z-20 min-w-max max-w-max', _ === stage ? 'text-white' : 'text-white/10 opacity-10')}
+              >
+                {stages[_].label}
+              </motion.span>
             </div>
           </Fragment>
         ))}
       </div>
       <div className={cn('my-24 grid w-full max-w-4xl grid-cols-1 gap-8', stages[stage].rightView && 'md:grid-cols-2')}>
         {stages[stage].leftView && (
-          <AnimatePresence mode="popLayout">
-            <motion.span
-              key={stage}
-              exit={{ opacity: 0 }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8 }}
-              className={cn('flex w-full flex-col p-4')}
-            >
-              {stages[stage].leftView}
-            </motion.span>
-          </AnimatePresence>
+          <motion.span key={stage} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className={cn('flex w-full flex-col p-4')}>
+            {stages[stage].leftView}
+          </motion.span>
         )}
         {stages[stage].rightView && (
-          <AnimatePresence mode="popLayout">
-            <motion.span
-              key={stage}
-              exit={{ opacity: 0 }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8 }}
-              className={cn('flex w-full flex-col p-4')}
-            >
-              {stages[stage].rightView}
-            </motion.span>
-          </AnimatePresence>
+          <motion.span key={stage} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className={cn('flex w-full flex-col p-4')}>
+            {stages[stage].rightView}
+          </motion.span>
         )}
       </div>
       <div className="mt-12 flex flex-row items-center gap-x-3">
