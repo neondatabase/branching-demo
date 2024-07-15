@@ -307,10 +307,12 @@ export default function Onboarding() {
                     description: 'Fetching data of the restored database...',
                   })
                   fetchData(newBranchName).then(() => {
-                    setIsVisible(true)
-                    setTimeout(() => {
-                      setIsVisible(false)
-                    }, 5000)
+                    if (stage === 5) {
+                      setIsVisible(true)
+                      setTimeout(() => {
+                        setIsVisible(false)
+                      }, 5000)
+                    }
                   })
                 })
               setStage((stage) => stage + 1)
@@ -420,6 +422,7 @@ export default function Onboarding() {
         }
       })
   useEffect(() => {
+    if (stage !== 5) setIsVisible(false)
     if (stage === 1) {
       toast({
         duration: 4000,
