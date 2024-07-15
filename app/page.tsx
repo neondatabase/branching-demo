@@ -227,7 +227,7 @@ export default function Onboarding() {
             className="mt-8 max-w-max bg-green-400"
           >
             <CirclePlus size="18" />
-            <span className="ml-3">Add a Row</span>
+            <span className="ml-3">Add a random row</span>
           </Button>
         </div>
       ),
