@@ -50,8 +50,8 @@ export default function Onboarding() {
   const [columns_5, setColumns5] = useState<string[]>([])
   //
   function DataTable({
-    rows,
-    columns,
+    rows = [],
+    columns = [],
     highlight = 0,
     databaseName = 'main',
     editable = false,
@@ -67,8 +67,8 @@ export default function Onboarding() {
         <span className="text-md text-white/30">
           Database: <span className="text-white/70">{databaseName}</span>, Table: <span className="text-white/70">playing_with_neon</span>
         </span>
-        <Table className="mt-3 border-t">
-          {columns && (
+        <Table className={cn('mt-3 border-t', rows.length < 1 && 'border-separate border-spacing-y-1')}>
+          {columns.length > 0 && (
             <TableHeader>
               <TableRow>
                 {editable && <TableHead>&nbsp;</TableHead>}
@@ -78,7 +78,7 @@ export default function Onboarding() {
               </TableRow>
             </TableHeader>
           )}
-          {rows && (
+          {rows.length > 0 ? (
             <TableBody>
               {rows.map((i, idx) => (
                 <TableRow className={highlight - 1 === idx ? 'bg-green-800 text-white' : ''} key={idx}>
@@ -99,6 +99,34 @@ export default function Onboarding() {
                   ))}
                 </TableRow>
               ))}
+            </TableBody>
+          ) : (
+            <TableBody>
+              <TableRow className="animate-pulse bg-gray-100/10">
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+              <TableRow className="animate-pulse bg-gray-100/10">
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+              <TableRow className="animate-pulse bg-gray-100/10">
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+              <TableRow className="animate-pulse bg-gray-100/10">
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+              <TableRow className="animate-pulse bg-gray-100/10">
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+              </TableRow>
             </TableBody>
           )}
         </Table>
@@ -285,7 +313,7 @@ export default function Onboarding() {
                 .then((res) => {
                   if (res.time) setResetBranchTime(res.time)
                   toast({
-                    duration: 4000,
+                    duration: 10000,
                     description: 'Fetching data of the restored database...',
                   })
                   fetchData(newBranchName).then(() => {
