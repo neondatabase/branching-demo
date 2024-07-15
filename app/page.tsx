@@ -1,13 +1,13 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useToast } from '@/components/ui/use-toast'
 import { cn } from '@/lib/utils'
 import { motion } from 'framer-motion'
 import { CircleMinus, CirclePlus, TimerReset } from 'lucide-react'
-import { Dispatch, Fragment, ReactElement, SetStateAction, useEffect, useState } from 'react'
+import { Fragment, ReactElement, useEffect, useState } from 'react'
 import Confetti from 'react-confetti'
 import { generateUsername } from 'unique-username-generator'
 
@@ -21,84 +21,12 @@ interface Stage {
   label?: string
 }
 
-type CheckBoxRow = Record<number, boolean>
-
-function DataTable({
-  rows,
-  columns,
-  highlight = 0,
-  databaseName = 'main',
-  editable = false,
-  setToBeRemoved,
-}: {
-  rows: any[]
-  columns: any[]
-  highlight?: number
-  databaseName?: string
-  editable?: boolean
-  setToBeRemoved?: Dispatch<SetStateAction<CheckBoxRow>>
-}) {
-  return (
-    <>
-      <span className="text-md text-white/30">
-        Database: <span className="text-white/70">{databaseName}</span>, Table: <span className="text-white/70">playing_with_neon</span>
-      </span>
-      <Table className="mt-3 border-t">
-        {columns && (
-          <TableHeader>
-            <TableRow>
-              {editable && <TableHead>&nbsp;</TableHead>}
-              {columns.map((i) => (
-                <TableHead key={i}>{i}</TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-        )}
-        {rows && (
-          <TableBody>
-            {rows.map((i, idx) => (
-              <TableRow className={highlight - 1 === idx ? 'bg-green-800 text-white' : ''} key={idx}>
-                {editable && (
-                  <TableCell>
-                    <Checkbox
-                      onCheckedChange={(checked) => {
-                        if (setToBeRemoved) {
-                          if (checked) {
-                            setToBeRemoved((toBeRemoved: CheckBoxRow) => {
-                              const tmpToBeRemoved = toBeRemoved
-                              tmpToBeRemoved[i.id] = true
-                              return tmpToBeRemoved
-                            })
-                          } else {
-                            setToBeRemoved((toBeRemoved: CheckBoxRow) => {
-                              const tmpToBeRemoved = toBeRemoved
-                              if (tmpToBeRemoved[i.id]) delete tmpToBeRemoved[i.id]
-                              return tmpToBeRemoved
-                            })
-                          }
-                        }
-                        return checked
-                      }}
-                    />
-                  </TableCell>
-                )}
-                {Object.values(i).map((j: any, idx2) => (
-                  <TableCell key={idx2}>{j}</TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        )}
-      </Table>
-    </>
-  )
-}
-
 export default function Onboarding() {
   const [stage, setStage] = useState(0)
   const [nextOn, setNextOn] = useState(true)
   const [prevOn, setPrevOn] = useState(true)
   const [isVisible, setIsVisible] = useState(false)
+  const [toBeRemoved, setToBeRemoved] = useState<number[]>([])
   //
   const { toast } = useToast()
   const [newBranchTime, setNewBranchTime] = useState(0)
@@ -108,7 +36,6 @@ export default function Onboarding() {
   const [mainBranchSize, setMainBranchSize] = useState(0)
   const [resetBranchTime, setResetBranchTime] = useState(0)
   const [insertBranchTime, setInsertBranchTime] = useState(0)
-  const [toBeRemoved, setToBeRemoved] = useState<CheckBoxRow>({})
   const [sourceConnectionString, setSourceConnectionString] = useState('')
   const [destinationConnectionString, setDestinationConnectionString] = useState('')
   const [rows, setRows] = useState([])
@@ -121,6 +48,63 @@ export default function Onboarding() {
   const [columns_4, setColumns4] = useState<string[]>([])
   const [rows_5, setRows5] = useState([])
   const [columns_5, setColumns5] = useState<string[]>([])
+  //
+  function DataTable({
+    rows,
+    columns,
+    highlight = 0,
+    databaseName = 'main',
+    editable = false,
+  }: {
+    rows: any[]
+    columns: any[]
+    highlight?: number
+    databaseName?: string
+    editable?: boolean
+  }) {
+    return (
+      <>
+        <span className="text-md text-white/30">
+          Database: <span className="text-white/70">{databaseName}</span>, Table: <span className="text-white/70">playing_with_neon</span>
+        </span>
+        <Table className="mt-3 border-t">
+          {columns && (
+            <TableHeader>
+              <TableRow>
+                {editable && <TableHead>&nbsp;</TableHead>}
+                {columns.map((i) => (
+                  <TableHead key={i}>{i}</TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+          )}
+          {rows && (
+            <TableBody>
+              {rows.map((i, idx) => (
+                <TableRow className={highlight - 1 === idx ? 'bg-green-800 text-white' : ''} key={idx}>
+                  {editable && (
+                    <TableCell>
+                      <Input
+                        type="checkbox"
+                        checked={toBeRemoved.includes(i.id)}
+                        onChange={(event) => {
+                          if (event.target.checked) setToBeRemoved((copyRemoved) => [...copyRemoved, i.id])
+                          else setToBeRemoved((copyRemoved) => [...copyRemoved].filter((oops) => oops != i.id))
+                        }}
+                      />
+                    </TableCell>
+                  )}
+                  {Object.values(i).map((j: any, idx2) => (
+                    <TableCell key={idx2}>{j}</TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          )}
+        </Table>
+      </>
+    )
+  }
   //
   const stages: Stage[] = [
     {
@@ -208,7 +192,7 @@ export default function Onboarding() {
           </span>
           <Button
             variant="destructive"
-            disabled={Object.keys(toBeRemoved).length < 1}
+            disabled={toBeRemoved.length < 1}
             onClick={() => {
               toast({
                 duration: 4000,
@@ -219,9 +203,7 @@ export default function Onboarding() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   branchName: newBranchName,
-                  query: `DELETE FROM playing_with_neon WHERE ${Object.keys(toBeRemoved)
-                    .map((i) => `id = ${i}`)
-                    .join(' OR ')}`,
+                  query: `DELETE FROM playing_with_neon WHERE ${toBeRemoved.map((i) => `id = ${i}`).join(' OR ')}`,
                 }),
               })
                 .then((res) => res.json())
@@ -238,7 +220,7 @@ export default function Onboarding() {
           </Button>
         </div>
       ),
-      rightView: <DataTable editable={true} setToBeRemoved={setToBeRemoved} rows={rows_2} columns={columns_2} databaseName={newBranchName} />,
+      rightView: <DataTable editable={true} rows={rows_2} columns={columns_2} databaseName={newBranchName} />,
     },
     {
       label: 'Edited database',
@@ -307,12 +289,10 @@ export default function Onboarding() {
                     description: 'Fetching data of the restored database...',
                   })
                   fetchData(newBranchName).then(() => {
-                    if (stage === 5) {
-                      setIsVisible(true)
-                      setTimeout(() => {
-                        setIsVisible(false)
-                      }, 5000)
-                    }
+                    setIsVisible(true)
+                    setTimeout(() => {
+                      setIsVisible(false)
+                    }, 5000)
                   })
                 })
               setStage((stage) => stage + 1)
@@ -422,7 +402,6 @@ export default function Onboarding() {
         }
       })
   useEffect(() => {
-    if (stage !== 5) setIsVisible(false)
     if (stage === 1) {
       toast({
         duration: 4000,
@@ -442,7 +421,7 @@ export default function Onboarding() {
   }, [stage])
   return (
     <div className="flex flex-col items-center">
-      <div className={cn('fixed left-0 top-0 h-screen w-screen', isVisible ? 'z-[10000]' : 'z-[-1]')}>{isVisible && <Confetti />}</div>
+      <div className={cn('fixed left-0 top-0 h-screen w-screen', isVisible && stage === 5 ? 'z-[10000]' : 'z-[-1]')}>{isVisible && <Confetti />}</div>
       <div className="flex flex-row items-center gap-x-3">
         {new Array(stageLength).fill(0).map((i, _) => (
           <div key={_} className={cn('rounded-full', stage !== _ ? 'size-[6px] bg-white/50' : 'size-[8px] bg-white')} />
@@ -492,9 +471,9 @@ export default function Onboarding() {
           </Fragment>
         ))}
       </div>
-      <div className={cn('my-24 grid w-full max-w-4xl grid-cols-1 gap-8', stages[stage].rightView && 'md:grid-cols-2')}>
-        {stages[stage].leftView && <div className={cn('flex w-full flex-col p-4')}>{stages[stage].leftView}</div>}
-        {stages[stage].rightView && <div className={cn('flex w-full flex-col p-4')}>{stages[stage].rightView}</div>}
+      <div className={cn('my-24 grid w-full max-w-4xl grid-cols-1 gap-8', stages[stage]?.rightView && 'md:grid-cols-2')}>
+        {stages[stage]?.leftView && <div className={cn('flex w-full flex-col p-4')}>{stages[stage].leftView}</div>}
+        {stages[stage]?.rightView && <div className={cn('flex w-full flex-col p-4')}>{stages[stage].rightView}</div>}
       </div>
       <div className="mt-12 flex flex-row items-center gap-x-3">
         <Button
