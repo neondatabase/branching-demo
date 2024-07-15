@@ -300,7 +300,7 @@ export default function Onboarding() {
           <span className="text-xl font-medium">But... I messed it up!</span>
           <span className="mt-3 text-balance text-gray-400">
             In about <span className={cn(insertBranchTime > 0 && 'text-green-400')}>{insertBranchTime > 0 ? Math.round(insertBranchTime * 100) / 100 : '............'}</span> ms,
-            you inserted a row in your copied database. But what if you wanted to restore to the initial state?
+            you inserted a row in your copied database. But what if you wanted to restore the initial state?
           </span>
           <Button
             onClick={() => {
@@ -343,10 +343,10 @@ export default function Onboarding() {
           <span className="text-xl font-medium">Yay, it{"'"}s back!</span>
           <span className="mt-3 text-balance text-gray-400">
             In about <span className={cn(resetBranchTime > 0 && 'text-green-400')}>{resetBranchTime > 0 ? Math.round(resetBranchTime * 100) / 100 : '............'}</span> ms, you
-            restored your copied database of <span className="text-green-400">{mainBranchSize > 0 ? mainBranchSize : '............'}</span> GiB to it{"'"}s original state. To try
-            this on your own data,{' '}
+            restored your copied database of <span className="text-green-400">{mainBranchSize > 0 ? mainBranchSize : '............'}</span> GiB to its original state. To try this
+            on your own data,{' '}
             <a className="text-green-400 underline" href="https://console.neon.tech/signup" target="_blank">
-              Sign up for Neon
+              sign up for Neon
             </a>
             .
           </span>
