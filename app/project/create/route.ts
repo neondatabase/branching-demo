@@ -18,6 +18,7 @@ export async function POST() {
     ],
     branch: {
       parent_id: process.env.NEON_PARENT_ID,
+      name: 'demos-branching-' + new Date().getTime().toString(),
     },
   })
   const start_time = performance.now()
