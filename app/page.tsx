@@ -432,7 +432,7 @@ export default function Onboarding() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="w-[30px] translate-x-0.5" src={stages[_].icon} alt="ChartJS" />
               {stages[stage].label && (
-                <AnimatePresence mode="wait">
+                <AnimatePresence mode="popLayout">
                   <motion.span
                     key={stage}
                     className={cn('absolute -bottom-8 z-20 min-w-max max-w-max', _ === stage ? 'text-white' : 'text-white/10 opacity-10')}
@@ -451,7 +451,7 @@ export default function Onboarding() {
       </div>
       <div className={cn('my-24 grid w-full max-w-4xl grid-cols-1 gap-8', stages[stage].rightView && 'md:grid-cols-2')}>
         {stages[stage].leftView && (
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="popLayout">
             <motion.span
               key={stage}
               exit={{ opacity: 0 }}
@@ -465,7 +465,7 @@ export default function Onboarding() {
           </AnimatePresence>
         )}
         {stages[stage].rightView && (
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="popLayout">
             <motion.span
               key={stage}
               exit={{ opacity: 0 }}
