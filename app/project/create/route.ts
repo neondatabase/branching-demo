@@ -3,7 +3,12 @@ export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 
 import { neon } from '@neondatabase/serverless'
+import { Client } from '@upstash/qstash'
 import { NextResponse } from 'next/server'
+
+let client: Client | null = null
+
+if (process.env.QSTASH_TOKEN) client = new Client({ token: process.env.QSTASH_TOKEN })
 
 export async function POST() {
   const headers = new Headers()
@@ -35,7 +40,17 @@ export async function POST() {
   const sql = neon(`${process.env.DB_CONNECTION_STRING}`)
   try {
     // await sql`CREATE TABLE IF NOT EXISTS branches (branch_name TEXT PRIMARY KEY, connection_string TEXT)`
-    await sql`INSERT INTO branches (branch_name, connection_string) VALUES (${new_branch_id}, ${new_branch_connection_string})`
+    await Promise.all(
+      [
+        sql`INSERT INTO branches (branch_name, connection_string) VALUES (${new_branch_id}, ${new_branch_connection_string})`,
+        client &&
+          client.publishJSON({
+            url: 'https://neon-demos-branching.vercel.app/project/clean',
+            body: { new_branch_id },
+            delay: 10,
+          }),
+      ].filter(Boolean),
+    )
     return NextResponse.json({
       time: end_time - start_time,
       new_branch_id,
