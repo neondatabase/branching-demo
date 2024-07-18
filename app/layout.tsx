@@ -12,6 +12,13 @@ const fontSans = Inter({
 export const metadata: Metadata = {
   title: 'Database branches in subseconds',
   description: 'Instantly provison branches of a Postgres database on Neon.',
+  openGraph: {
+    images: [
+      {
+        url: 'https://neon-demos-branching.vercel.app/og.png',
+      },
+    ],
+  },
 }
 
 export default function RootLayout({
