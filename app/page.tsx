@@ -458,7 +458,7 @@ export default function Onboarding() {
       <div className="mt-12 flex flex-row items-center">
         {new Array(stageLength).fill(0).map((i, _) => (
           <Fragment key={_}>
-            <div className="relative flex flex-row">
+            <div className={cn('relative flex flex-row', _ !== stage && 'hidden lg:block')}>
               {!(stages[_].branched && _ - 1 > 0 && stages[_ - 1].branched) && stages[_].branched && (
                 <div className={cn('branching-line', _ === stage ? 'bg-white' : 'bg-white/10')} />
               )}
@@ -482,6 +482,7 @@ export default function Onboarding() {
                 'relative mx-8 flex size-[80px] flex-col items-center justify-center rounded-full border',
                 _ !== stage ? 'bg-white/10 opacity-50' : 'bg-white',
                 stages[_].branched && 'mt-12',
+                _ !== stage && 'hidden lg:flex',
               )}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
