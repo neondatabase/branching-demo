@@ -10,8 +10,8 @@ const fontSans = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Database branches in subseconds',
-  description: 'Instantly provison branches of a Postgres database on Neon.',
+  title: 'Copy your database in milliseconds',
+  description: 'A demo to create a copy of your database, make changes to it, and restore it to the original state in milliseconds..',
   openGraph: {
     images: [
       {
