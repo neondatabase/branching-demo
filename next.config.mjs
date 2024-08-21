@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+  assetPrefix: '/demos/branching',
+}
 
 export default nextConfig
