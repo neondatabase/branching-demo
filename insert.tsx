@@ -10,7 +10,7 @@ let counter = 0
 const transactions: any[] = []
 
 async function populate() {
-  await sql(`DROP TABLE playing_with_neon`)
+  await Promise.all([sql(`DROP TABLE IF EXISTS playing_with_neon`), sql(`CREATE TABLE branches (branch_name TEXT, connection_string TEXT)`)])
   await sql(`CREATE TABLE playing_with_neon (id INTEGER PRIMARY KEY, singer TEXT, song TEXT)`)
   createReadStream('./spotify_millsongdata.csv')
     .pipe(parse({ delimiter: ',', from_line: 2 }))
@@ -19,11 +19,9 @@ async function populate() {
       transactions.push(sql(`INSERT INTO playing_with_neon (id, singer, song) VALUES (${counter}, '${slug(row[0])}', '${slug(row[1])}')`))
     })
     .on('error', function (error) {
-      console.log('[0]')
       console.log(error.message)
     })
     .on('end', async function () {
-      console.log('[1]')
       await sql.transaction(transactions)
     })
 }
