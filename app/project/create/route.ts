@@ -1,12 +1,12 @@
-export const runtime = 'edge'
-
 export const dynamic = 'force-dynamic'
 
 export const fetchCache = 'force-no-store'
 
-import { neon } from '@neondatabase/serverless'
 import { Client } from '@upstash/qstash'
 import { NextResponse } from 'next/server'
+import { neon, neonConfig } from '@neondatabase/serverless'
+
+neonConfig.poolQueryViaFetch = true
 
 let client: Client | null = null
 

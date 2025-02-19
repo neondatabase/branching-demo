@@ -1,11 +1,11 @@
-export const runtime = 'edge'
-
 export const dynamic = 'force-dynamic'
 
 export const fetchCache = 'force-no-store'
 
-import { neon } from '@neondatabase/serverless'
+import { neon, neonConfig } from '@neondatabase/serverless'
 import { type NextRequest, NextResponse } from 'next/server'
+
+neonConfig.poolQueryViaFetch = true
 
 export async function POST(request: NextRequest) {
   const { branchName, query } = await request.json()
