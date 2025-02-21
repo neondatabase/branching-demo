@@ -1,3 +1,7 @@
+export const runtime = 'edge'
+
+export const preferredRegion = ['cle1']
+
 export const dynamic = 'force-dynamic'
 
 export const fetchCache = 'force-no-store'
@@ -49,7 +53,7 @@ export async function POST() {
           client.publishJSON({
             url: 'https://neon-demos-branching.vercel.app/project/clean',
             body: { new_branch_id },
-            delay: 15 * 60,
+            delay: 60 * 60,
           }),
       ].filter(Boolean),
     )
