@@ -141,7 +141,7 @@ export default function Onboarding() {
       branched: false,
       leftView: (
         <div className="contents">
-          <h1 className="text-3xl font-semibold text-white">Copy your database in milliseconds</h1>
+          <h1 className="text-3xl font-semibold text-white">Copy your database in milliseconds - regardless of size</h1>
           <span className="mt-3 font-light text-gray-400">
             In this demo, you will create a copy of your database, make changes to it, and restore it to the original state in milliseconds. Behind the scenes, you are
             leveraging&nbsp;
