@@ -25,6 +25,9 @@ export async function POST() {
     endpoints: [
       {
         type: 'read_write',
+        autoscaling_limit_min_cu: 1,
+        autoscaling_limit_max_cu: 1,
+        suspend_timeout_seconds: -1,
       },
     ],
     branch: {
