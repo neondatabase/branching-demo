@@ -57,6 +57,7 @@ export async function POST() {
             url: 'https://neon-demos-branching.vercel.app/project/clean',
             body: { new_branch_id },
             delay: 60 * 60,
+            retries: 0,
           }),
       ].filter(Boolean),
     )
