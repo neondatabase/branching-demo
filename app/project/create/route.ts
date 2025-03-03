@@ -49,7 +49,7 @@ export async function POST() {
   const sql = neon(`${process.env.DB_CONNECTION_STRING}`)
   try {
     // await sql`CREATE TABLE IF NOT EXISTS branches (branch_name TEXT PRIMARY KEY, connection_string TEXT)`
-    await Promise.all(
+    await Promise.allSettled(
       [
         sql`INSERT INTO branches (branch_name, connection_string) VALUES (${new_branch_id}, ${new_branch_connection_string})`,
         client &&
