@@ -38,15 +38,15 @@ export default function Onboarding() {
   const [insertBranchTime, setInsertBranchTime] = useState(0)
   const [sourceConnectionString, setSourceConnectionString] = useState('')
   const [destinationConnectionString, setDestinationConnectionString] = useState('')
-  const [rows, setRows] = useState([])
+  const [rows, setRows] = useState<Record<string, any>[]>([])
   const [columns, setColumns] = useState<string[]>([])
-  const [rows_2, setRows2] = useState([])
+  const [rows_2, setRows2] = useState<Record<string, any>[]>([])
   const [columns_2, setColumns2] = useState<string[]>([])
-  const [rows_3, setRows3] = useState([])
+  const [rows_3, setRows3] = useState<Record<string, any>[]>([])
   const [columns_3, setColumns3] = useState<string[]>([])
-  const [rows_4, setRows4] = useState([])
+  const [rows_4, setRows4] = useState<Record<string, any>[]>([])
   const [columns_4, setColumns4] = useState<string[]>([])
-  const [rows_5, setRows5] = useState([])
+  const [rows_5, setRows5] = useState<Record<string, any>[]>([])
   const [columns_5, setColumns5] = useState<string[]>([])
   //
   function DataTable({
@@ -288,7 +288,7 @@ export default function Onboarding() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   branchName: newBranchName,
-                  query: `INSERT INTO playing_with_neon (id, singer, song) VALUES (${Math.floor(Math.random() * 90000) + 50000}, '${generateUsername()}', 'new-song-name')`,
+                  query: `INSERT INTO playing_with_neon (id, singer, song) VALUES (${(rows_3[0]?.id ?? 0) + 1}, '${generateUsername()}', 'new-song-name')`,
                 }),
               })
                 .then((res) => res.json())
