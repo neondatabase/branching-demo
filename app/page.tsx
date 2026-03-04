@@ -169,11 +169,7 @@ export default function Onboarding() {
         <div className="contents">
           <span className="text-xl font-medium">Create your own Postgres database</span>
           <span className="mt-3 text-balance text-gray-400">
-            A Neon database is created in{' '}
-            <a className="border-b text-white" target="_blank" href="https://neon.tech/demos/instant-postgres">
-              under a second
-            </a>
-            . For now, we have prepared a database for you to copy. Currently, the size of this database is about{' '}
+            A Neon database is created in under a second. For now, we have prepared a database for you to copy. Currently, the size of this database is about{' '}
             <span className="text-green-400">{mainBranchSize > 0 ? mainBranchSize : '............'}</span> GiB.
           </span>
           <Button
@@ -183,17 +179,37 @@ export default function Onboarding() {
                 description: `Creating a copy of data in main database...`,
               })
               fetch('/project/create', { method: 'POST' })
-                .then((res) => res.json())
-                .then((res) => {
+                .then(async (res) => {
+                  let data: { code?: number; new_branch_id?: string; error?: string }
+                  try {
+                    data = await res.json()
+                  } catch {
+                    data = { code: 0, error: res.ok ? 'Invalid response' : `Request failed (${res.status})` }
+                  }
+                  if (data.code !== 1 || !data.new_branch_id) {
+                    toast({
+                      variant: 'destructive',
+                      duration: 8000,
+                      description: data.error ?? 'Failed to create branch.',
+                    })
+                    return
+                  }
                   toast({
                     duration: 4000,
                     description: `Fetching data in the copied database...`,
                   })
-                  setNewBranchName(res.new_branch_id)
-                  if (res.time) setNewBranchTime(res.time)
-                  fetchData(res.new_branch_id)
+                  setNewBranchName(data.new_branch_id)
+                  if (data.time) setNewBranchTime(data.time)
+                  fetchData(data.new_branch_id)
+                  setStage((stage) => stage + 1)
                 })
-              setStage((stage) => stage + 1)
+                .catch((err) => {
+                  toast({
+                    variant: 'destructive',
+                    duration: 8000,
+                    description: err?.message ?? 'Network or server error. Check the console.',
+                  })
+                })
             }}
             className="mt-8 max-w-max"
           >
@@ -311,19 +327,53 @@ export default function Onboarding() {
               fetch('/project/reset?branchName=' + newBranchName)
                 .then((res) => res.json())
                 .then((res) => {
+                  if (res.code !== 1) {
+                    toast({
+                      variant: 'destructive',
+                      duration: 8000,
+                      description: res.error ?? 'Restore failed.',
+                    })
+                    return
+                  }
                   if (res.time) setResetBranchTime(res.time)
                   toast({
-                    duration: 10000,
+                    duration: 5000,
                     description: 'Fetching data of the restored database...',
                   })
-                  fetchData(newBranchName).then(() => {
-                    setIsVisible(true)
-                    setTimeout(() => {
-                      setIsVisible(false)
-                    }, 5000)
+                  setStage((stage) => stage + 1)
+
+                  const loadRestoredData = () =>
+                    fetch(`/project/data?branchName=${newBranchName}`)
+                      .then((r) => r.json())
+                      .then((data) => {
+                        if (Array.isArray(data?.rows) && data.rows.length > 0) {
+                          setRows5(data.rows)
+                          setColumns5(Object.keys(data.rows[0]))
+                          toast({ duration: 4000, description: 'Restored database loaded.' })
+                          setIsVisible(true)
+                          setTimeout(() => setIsVisible(false), 5000)
+                        }
+                        return data
+                      })
+
+                  loadRestoredData()
+                    .then((data) => {
+                      if (!Array.isArray(data?.rows) || data.rows.length === 0) {
+                        return new Promise<void>((r) => setTimeout(r, 800)).then(() => loadRestoredData())
+                      }
+                    })
+                    .then(() => {
+                      fetch('/project/cleanup-stale', { method: 'POST' }).catch(() => {})
+                    })
+                  fetchBranchSize(newBranchName)
+                })
+                .catch(() => {
+                  toast({
+                    variant: 'destructive',
+                    duration: 8000,
+                    description: 'Network or server error.',
                   })
                 })
-              setStage((stage) => stage + 1)
             }}
             className="mt-8 max-w-max bg-blue-400"
           >
@@ -391,7 +441,7 @@ export default function Onboarding() {
         return res.json()
       })
       .then((res) => {
-        if (res.rows.length > 0) {
+        if (Array.isArray(res?.rows) && res.rows.length > 0) {
           if (branchName === 'main') {
             setSourceConnectionString(res.sanitizedConnectionString)
             setRows(res.rows)

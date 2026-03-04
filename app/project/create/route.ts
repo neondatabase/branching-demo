@@ -6,21 +6,48 @@ export const dynamic = 'force-dynamic'
 
 export const fetchCache = 'force-no-store'
 
-import { Client } from '@upstash/qstash'
-import { NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { neon, neonConfig } from '@neondatabase/serverless'
 
 neonConfig.poolQueryViaFetch = true
 
-let client: Client | null = null
-
-if (process.env.QSTASH_TOKEN) client = new Client({ token: process.env.QSTASH_TOKEN })
-
-export async function POST() {
+function neonHeaders() {
   const headers = new Headers()
   headers.append('Accept', 'application/json')
   headers.append('Content-Type', 'application/json')
   headers.append('Authorization', `Bearer ${process.env.NEON_API_KEY}`)
+  return headers
+}
+
+type BranchRow = { id: string; primary?: boolean; default?: boolean; created_at?: string }
+
+function listNonPrimaryBranchesOldestFirst(listJson: unknown): BranchRow[] {
+  const raw = Array.isArray(listJson) ? listJson : (listJson as { branches?: BranchRow[] })?.branches
+  const branches: BranchRow[] = Array.isArray(raw) ? raw : []
+  return branches
+    .filter((b) => !b.primary && !b.default)
+    .sort((a, b) => (a.created_at ?? '').localeCompare(b.created_at ?? ''))
+}
+
+async function deleteBranch(branchId: string): Promise<boolean> {
+  const delRes = await fetch(
+    `https://console.neon.tech/api/v2/projects/${process.env.NEON_PROJECT_ID}/branches/${branchId}`,
+    { method: 'DELETE', headers: neonHeaders() }
+  )
+  return delRes.ok
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    return await doCreate(request)
+  } catch (e) {
+    console.error('[create]', e)
+    return NextResponse.json({ code: 0, error: (e as Error)?.message ?? 'Create failed' }, { status: 500 })
+  }
+}
+
+async function doCreate(request: NextRequest) {
+  const headers = neonHeaders()
   const body = JSON.stringify({
     endpoints: [
       {
@@ -36,40 +63,77 @@ export async function POST() {
     },
   })
   const start_time = performance.now()
-  const newCall = await fetch(`https://console.neon.tech/api/v2/projects/${process.env.NEON_PROJECT_ID}/branches`, {
+
+  let newCall = await fetch(`https://console.neon.tech/api/v2/projects/${process.env.NEON_PROJECT_ID}/branches`, {
     method: 'POST',
     headers,
     body,
   })
-  const newResp = await newCall.json()
+  let newResp = await newCall.json() as { branch?: { id: string }; connection_uris?: Array<{ connection_uri: string }>; code?: string; message?: string }
+
+  if (newCall.status === 422 && newResp?.code === 'BRANCHES_LIMIT_EXCEEDED') {
+    // First run full stale cleanup (branches older than 1h), then retry create
+    try {
+      const origin = new URL(request.url).origin
+      await fetch(`${origin}/project/cleanup-stale`, { method: 'POST' })
+    } catch (_) {}
+    // Retry create after cleanup; if still at limit, delete single oldest and retry
+    newCall = await fetch(`https://console.neon.tech/api/v2/projects/${process.env.NEON_PROJECT_ID}/branches`, {
+      method: 'POST',
+      headers,
+      body,
+    })
+    newResp = await newCall.json() as typeof newResp
+
+    if (newCall.status === 422 && newResp?.code === 'BRANCHES_LIMIT_EXCEEDED') {
+      const listRes = await fetch(
+        `https://console.neon.tech/api/v2/projects/${process.env.NEON_PROJECT_ID}/branches`,
+        { headers: neonHeaders() }
+      )
+      if (listRes.ok) {
+        const listJson = await listRes.json()
+        const toDelete = listNonPrimaryBranchesOldestFirst(listJson)[0]
+        if (toDelete?.id && (await deleteBranch(toDelete.id))) {
+          try {
+            const sql = neon(`${process.env.DB_CONNECTION_STRING}`)
+            await sql`DELETE FROM branches WHERE branch_name = ${toDelete.id}`
+          } catch (_) {}
+          newCall = await fetch(`https://console.neon.tech/api/v2/projects/${process.env.NEON_PROJECT_ID}/branches`, {
+            method: 'POST',
+            headers,
+            body,
+          })
+          newResp = await newCall.json() as typeof newResp
+        }
+      }
+    }
+  }
+
   const end_time = performance.now()
-  const { connection_uris, branch } = newResp
-  const { id: new_branch_id } = branch
-  const { connection_uri: new_branch_connection_string } = connection_uris[0]
+
+  if (!newCall.ok) {
+    const message = newResp?.message ?? newResp?.code ?? newCall.statusText
+    return NextResponse.json({ code: 0, error: message }, { status: 502 })
+  }
+
+  const branch = newResp?.branch
+  const connection_uris = newResp?.connection_uris
+  if (!branch?.id || !connection_uris?.[0]?.connection_uri) {
+    return NextResponse.json({ code: 0, error: 'Unexpected response from Neon API' }, { status: 502 })
+  }
+
+  const new_branch_id = branch.id
+  const new_branch_connection_string = connection_uris[0].connection_uri
   const sql = neon(`${process.env.DB_CONNECTION_STRING}`)
   try {
-    // await sql`CREATE TABLE IF NOT EXISTS branches (branch_name TEXT PRIMARY KEY, connection_string TEXT)`
-    await Promise.allSettled(
-      [
-        sql`INSERT INTO branches (branch_name, connection_string) VALUES (${new_branch_id}, ${new_branch_connection_string})`,
-        client &&
-          client.publishJSON({
-            url: 'https://neon-demos-branching.vercel.app/project/clean',
-            body: { new_branch_id },
-            delay: 60 * 60,
-            retries: 0,
-          }),
-      ].filter(Boolean),
-    )
+    await sql`INSERT INTO branches (branch_name, connection_string) VALUES (${new_branch_id}, ${new_branch_connection_string})`
     return NextResponse.json({
       time: end_time - start_time,
       new_branch_id,
       code: 1,
     })
   } catch (e) {
-    console.log(e)
-    return NextResponse.json({
-      code: 0,
-    })
+    console.error('[create] insert branches', e)
+    return NextResponse.json({ code: 0, error: (e as Error)?.message ?? 'Database error' }, { status: 500 })
   }
 }
