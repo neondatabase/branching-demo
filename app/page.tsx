@@ -288,7 +288,7 @@ export default function Onboarding() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   branchName: newBranchName,
-                  query: `INSERT INTO playing_with_neon (id, singer, song) VALUES (${Math.floor(Math.random() * 90000) + 50000}, '${generateUsername()}', 'new-song-name')`,
+                  query: `INSERT INTO playing_with_neon (id, singer, song) VALUES (${(rows_3[0]?.id ?? 0) + 1}, '${generateUsername()}', 'new-song-name')`,
                 }),
               })
                 .then((res) => res.json())

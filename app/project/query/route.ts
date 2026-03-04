@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     if (branchName === 'main') {
       if (query.includes('SELECT ')) {
         const start_time = performance.now()
-        const rows = await sql(query)
+        const rows = await sql.query(query)
         const end_time = performance.now()
         return NextResponse.json({
           time: end_time - start_time,
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     const connectionString = parent_rows[0]['connection_string']
     const sql_1 = neon(connectionString)
     const start_time = performance.now()
-    const rows = await sql_1(query)
+    const rows = await sql_1.query(query)
     const end_time = performance.now()
     return NextResponse.json({
       time: end_time - start_time,

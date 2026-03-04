@@ -11,6 +11,9 @@ import { type NextRequest, NextResponse } from 'next/server'
 
 neonConfig.poolQueryViaFetch = true
 
+const MAX_RETRIES = 3
+const RETRY_DELAY_MS = 500
+
 const maskConnectionString = (connectionString: string) => {
   const urlPattern = /^(.*:\/\/)(.*:.*@)?(.*)$/
   const matches = connectionString.match(urlPattern)
@@ -43,8 +46,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ code: 0, error: 'Branch not found', rows: [] }, { status: 404 })
     }
     const connectionString = row.connection_string
-    const sql_1 = neon(connectionString)
-    const rows = await sql_1`SELECT * FROM playing_with_neon ORDER BY id DESC LIMIT 5`
+    // Branch compute may still be restarting after a restore.
+    // Retry to allow the compute to become ready.
+    let rows
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        const sql_1 = neon(connectionString)
+        rows = await sql_1`SELECT * FROM playing_with_neon ORDER BY id DESC LIMIT 5`
+        break
+      } catch (err) {
+        if (attempt === MAX_RETRIES) throw err
+        await new Promise((r) => setTimeout(r, RETRY_DELAY_MS))
+      }
+    }
     return NextResponse.json({
       sanitizedConnectionString: maskConnectionString(connectionString),
       rows,
