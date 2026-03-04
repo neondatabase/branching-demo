@@ -24,6 +24,9 @@ const maskConnectionString = (connectionString: string) => {
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const branchName = searchParams.get('branchName')
+  if (!branchName) {
+    return NextResponse.json({ code: 0, error: 'branchName is required' }, { status: 400 })
+  }
   const sql = neon(`${process.env.DB_CONNECTION_STRING}`)
   try {
     if (branchName === 'main') {
@@ -35,7 +38,11 @@ export async function GET(request: NextRequest) {
       })
     }
     const parent_rows = await sql`SELECT * FROM branches WHERE branch_name = ${branchName} LIMIT 1`
-    const connectionString = parent_rows[0]['connection_string']
+    const row = parent_rows[0]
+    if (!row?.connection_string) {
+      return NextResponse.json({ code: 0, error: 'Branch not found', rows: [] }, { status: 404 })
+    }
+    const connectionString = row.connection_string
     const sql_1 = neon(connectionString)
     const rows = await sql_1`SELECT * FROM playing_with_neon ORDER BY id DESC LIMIT 5`
     return NextResponse.json({
@@ -44,9 +51,7 @@ export async function GET(request: NextRequest) {
       code: 1,
     })
   } catch (e) {
-    console.log(e)
-    return NextResponse.json({
-      code: 0,
-    })
+    console.error('[data]', e)
+    return NextResponse.json({ code: 0 })
   }
 }

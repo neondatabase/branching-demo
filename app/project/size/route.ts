@@ -11,6 +11,9 @@ import { type NextRequest, NextResponse } from 'next/server'
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const branchName = searchParams.get('branchName')
+  if (!branchName) {
+    return NextResponse.json({ logical_size: '0.00' }, { status: 400 })
+  }
   try {
     const headers = new Headers()
     headers.append('Accept', 'application/json')
@@ -24,9 +27,7 @@ export async function GET(request: NextRequest) {
     const { logical_size } = tmp.branch
     return NextResponse.json({ logical_size: (logical_size / (1024 * 1024 * 1024)).toFixed(2) })
   } catch (e) {
-    console.log(e)
-    return NextResponse.json({
-      code: 0,
-    })
+    console.error('[size]', e)
+    return NextResponse.json({ code: 0 })
   }
 }

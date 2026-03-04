@@ -11,20 +11,26 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const branchName = searchParams.get('branchName')
+  if (!branchName) {
+    return NextResponse.json({ code: 0, error: 'branchName required' }, { status: 400 })
+  }
   const headers = new Headers()
   headers.append('Accept', 'application/json')
   headers.append('Content-Type', 'application/json')
   headers.append('Authorization', `Bearer ${process.env.NEON_API_KEY}`)
   const body = JSON.stringify({ source_branch_id: process.env.NEON_PARENT_ID })
   const start_time = performance.now()
-  await fetch(`https://console.neon.tech/api/v2/projects/${process.env.NEON_PROJECT_ID}/branches/${branchName}/restore`, {
-    method: 'POST',
-    headers,
-    body,
-  })
+  const res = await fetch(
+    `https://console.neon.tech/api/v2/projects/${process.env.NEON_PROJECT_ID}/branches/${branchName}/restore`,
+    { method: 'POST', headers, body }
+  )
   const end_time = performance.now()
-  return NextResponse.json({
-    time: end_time - start_time,
-    code: 1,
-  })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    return NextResponse.json(
+      { code: 0, error: (data as { message?: string })?.message ?? res.statusText },
+      { status: 502 }
+    )
+  }
+  return NextResponse.json({ time: end_time - start_time, code: 1 })
 }

@@ -32,9 +32,7 @@ A step-by-step process to learn how you can developer (iterate) faster with Neon
 
 ### Platforms
 
-- [QStash](https://upstash.com/docs/qstash/overall/getstarted) – A serverless messaging and scheduling solution.
-
-- [Vercel](https://vercel.com) - A cloud platform for deploying and scaling web applications.
+- [Vercel](https://vercel.com) – A cloud platform for deploying and scaling web applications.
 
 ## Author
 
