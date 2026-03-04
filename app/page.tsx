@@ -180,7 +180,7 @@ export default function Onboarding() {
               })
               fetch('/project/create', { method: 'POST' })
                 .then(async (res) => {
-                  let data: { code?: number; new_branch_id?: string; error?: string }
+                  let data: { code?: number; new_branch_id?: string; error?: string; time?: number }
                   try {
                     data = await res.json()
                   } catch {

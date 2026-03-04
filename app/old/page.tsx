@@ -138,6 +138,7 @@ function Page() {
       description: `Loading data from ${branchName} database...`,
     })
     fetchData('main')
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchData/toast are stable; deps would refire on every render
   }, [branchName, searchParams])
   useEffect(() => {
     setTimeout(() => {
@@ -149,6 +150,7 @@ function Page() {
         },
       })
     }, 1000)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
   }, [])
   return (
     <>
