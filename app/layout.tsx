@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   openGraph: {
     images: [
       {
-        url: 'https://neon-demos-branching.vercel.app/og.png',
+        url: 'https://neon-branching-demo.vercel.app/og.png',
       },
     ],
   },
